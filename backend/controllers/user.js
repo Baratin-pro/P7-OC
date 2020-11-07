@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt"); // protection password
 const jwt = require("jsonwebtoken"); // protection token
 const rateLimit = require("express-rate-limit"); // protection against abusive attacks
-const User = require("../models/user.js");
+const User = require("../src/models/User.js");
 const { validationResult } = require("express-validator");
 /* ****************Function : signup*****************
  *

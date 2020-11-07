@@ -1,30 +1,23 @@
-const express = require("express"); // Framework express
-const helmet = require("helmet"); // Protects against various attacks
-const bodyParser = require("body-parser"); // Recovery object for POST
-const path = require("path"); // Provides a way of working with directories and file paths.
-const app = express();
+//Node.js ==> Express Framework
+const express = require("express");
+let app = express();
 
-/*
- *   Routes : API
- */
-const userRoutes = require("./routes/user.js");
-/*
- *   Connection : database
- */
-/* const Sequelize = require("sequelize");
+//req.body property
+const bodyParser = require("body-parser");
 
-// Sequelize:
-const sequelize = new Sequelize("groupomania", "root", "", {
-  host: "localhost",
-  dialect: "mysql",
-});
-sequelize
-  .authenticate()
-  .then((e) => console.log("Connexion à réussie !"))
-  .catch((e) => console.log("Connexion à MySQL échouée ! :", e)); */
-/*
- *   Control : Cors and Methods
- */
+//Path
+const path = require("path");
+
+//Protects against various attacks
+const helmet = require("helmet");
+
+//Router API
+//const userRoutes = require("./routes/user.js");
+
+//DB Connection
+require("./src/database/connection.js");
+
+//Control : Cors and Methods
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -37,14 +30,12 @@ app.use((req, res, next) => {
   );
   next();
 });
-/*
- *   Processing requests
- */
+
+//Processing requests
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(helmet());
 app.use(bodyParser.json());
-app.use("/api/auth", userRoutes);
-/*
- *   Execution
- */
+//app.use("/api/auth", userRoutes);
+
+//Execution
 module.exports = app;
