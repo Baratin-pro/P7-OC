@@ -1,5 +1,4 @@
 const multer = require("multer");
-const htmlspecialchars = require("../middleware/htmlspecialchars.js");
 
 const MIME_TYPES = {
   "image/jpg": "jpg",
@@ -10,7 +9,7 @@ const MIME_TYPES = {
   "image/webp": "webp",
 };
 
-const storage = mutler.diskStorage({
+const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, "images");
   },
@@ -20,10 +19,7 @@ const storage = mutler.diskStorage({
     ).toString();
     const extension = MIME_TYPES[file.mimetype];
     if (extension !== undefined) {
-      callback(
-        null,
-        String(htmlspecialchars(generateName) + Date.now() + "." + extension)
-      );
+      callback(null, String(generateName + Date.now() + "." + extension));
     }
   },
 });

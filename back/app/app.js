@@ -4,6 +4,8 @@ const app = express();
 //Protect
 const helmet = require("helmet");
 app.use(helmet());
+//Path
+const path = require("path");
 //Cors
 const cors = require("cors");
 let corsOptions = {
@@ -29,6 +31,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //Sync database
 const db = require("./models");
 db.sequelize.sync();
+// image path on the server
+app.use("/images", express.static(path.join(__dirname, "images")));
 //Router
 require("./routes/user.js")(app);
 require("./routes/publication.js")(app);
