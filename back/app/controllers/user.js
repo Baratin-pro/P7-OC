@@ -9,7 +9,36 @@ const fs = require("fs");
 const config = require("../config/auth.config.js");
 const userdecodedTokenId = require("../middleware/userDecodedTokenId.js");
 const htmlspecialchars = require("../middleware/htmlspecialchars.js");
+const passwordValidator = require("password-validator");
 const regex = require("../middleware/regex.js");
+/*
+ * ********* Function : Schema of passwordValidator *********
+ */
+//Create a schema
+const schema = new passwordValidator();
+//Add properties to it
+schema
+  // Minimum length 8
+  .is()
+  .min(8)
+  // Maximum length 100
+  .is()
+  .max(100)
+  // Must have uppercase letters
+  .has()
+  .uppercase()
+  // Must have lowercase letters
+  .has()
+  .lowercase()
+  // Must have at least 1 digits
+  .has()
+  .digits(1)
+  // Should not have spaces
+  .has()
+  .not()
+  .spaces()
+  //Not regex
+  .not(/[&><"'=/!£$]/);
 /*
  * ********* Function : create User *********
  */
@@ -24,7 +53,7 @@ exports.signup = (req, res) => {
   if (!regex.emailRegex.test(req.body.emails)) {
     return res.status(400).send({ message: "L'email est invalide" });
   }
-  if (!regex.passwordRegex.test(req.body.passwords)) {
+  if (!schema.validate(req.body.passwords)) {
     return res.status(400).send({ message: "Le mot de passe est invalide" });
   }
   const password = htmlspecialchars(req.body.passwords);
@@ -103,7 +132,7 @@ exports.login = (req, res) => {
 /*
  * ********* Function : GetOne User *********
  */
-exports.compte = (req, res) => {
+exports.getOneUser = (req, res) => {
   db.user
     .findOne({
       where: { idUsers: userdecodedTokenId(req) },
@@ -155,44 +184,58 @@ exports.getAllUsers = (req, res) => {
       });
     });
 };
-
+/*
+ * ********* Function : update Image User *********
+ */
 exports.updateUserImage = (req, res) => {
-  const image = `${req.protocol}://${req.get("host")}/images/${
-    req.file.filename
-  }`;
-  /*  db.user
-    .findOne({ where: { idUsers: userdecodedTokenId(req) } })
-    .then(() => { */
   db.user
-    .update(
-      { images: image },
-      {
-        where: {
-          idUsers: userdecodedTokenId(req),
-        },
+    .findOne({
+      where: { idUsers: userdecodedTokenId(req) },
+    })
+    .then((user) => {
+      if (user.image != "http://localhost:3000/images/avatarDefault.jpg") {
+        const filename = user.image.split("/images/")[1];
+        fs.unlink(`images/${filename}`, (err) => {
+          if (err) {
+            return console.log(err);
+          } else {
+            console.log("image supprimée !");
+          }
+        });
       }
-    )
-    .then(() => {
-      res.status(201).send({ message: " image créée !" });
+
+      db.user
+        .update(
+          {
+            image: `${req.protocol}://${req.get("host")}/images/${
+              req.file.filename
+            }`,
+          },
+          {
+            where: {
+              idUsers: userdecodedTokenId(req),
+            },
+          }
+        )
+        .then(() => {
+          res.status(201).send({ message: " image créée !" });
+        })
+        .catch((err) => {
+          res.status(500).send({
+            message:
+              err.message ||
+              "Une erreur s'est produite lors de la création de l'image ",
+          });
+        });
     })
     .catch((err) => {
       res.status(500).send({
         message:
           err.message ||
-          "Une erreur s'est produite lors de la création de l'image ",
+          "Une erreur s'est produite lors de la récupération de l'User ",
       });
     });
 };
-/* ).catch((err) => {
-      res.status(500).send({
-        message:
-          err.message ||
-          "Une erreur s'est produite lors de la récupération de User avec l'id:" +
-            id,
-      });
-    }); 
-};*/
-
 /*
  * ********* Function : Limit request number *********
  */

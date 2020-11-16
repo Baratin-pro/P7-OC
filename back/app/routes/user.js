@@ -2,13 +2,14 @@ const auth = require("../middleware/authJwt.js");
 const multer = require("../middleware/multer-config.js");
 
 module.exports = (app) => {
-  const user = require("../controllers/user.js");
+  const userCtrl = require("../controllers/user.js");
   let router = require("express").Router();
-  router.post("/signup", user.signup); //Check
-  router.post("/login", /* user.limiter, */ user.login); //Check
-  router.get("/:id", auth, user.compte); //check
-  router.get("", auth, user.getAllUsers); //Check
+  //Router
+  router.post("/signup", userCtrl.signup);
+  router.post("/login", /* user.limiter, */ userCtrl.login);
+  router.get("/:id", auth, userCtrl.getOneUser);
+  router.get("", auth, userCtrl.getAllUsers);
   //router.delete("/:id", user.deleteUser); // A finir
-  router.put("/:id", auth, multer, user.updateUserImage); // need update for post
+  router.put("/:id", auth, multer, userCtrl.updateUserImage);
   app.use("/api/user", router);
 };

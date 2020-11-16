@@ -31,9 +31,9 @@ module.exports = (sequelize, Sequelize) => {
         defaultValue: 0,
       },
       image: {
-        type: Sequelize.BLOB,
-        allowNull: true,
-        unique: "image_UNIQUE",
+        type: Sequelize.STRING(255),
+        allowNull: false,
+        defaultValue: "http://localhost:3000/images/avatarDefault.jpg",
       },
     },
     {
@@ -52,12 +52,6 @@ module.exports = (sequelize, Sequelize) => {
           unique: true,
           using: "BTREE",
           fields: [{ name: "emails" }],
-        },
-        {
-          name: "image_UNIQUE",
-          unique: true,
-          using: "BTREE",
-          fields: [{ name: "image" }],
         },
       ],
     }
