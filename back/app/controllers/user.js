@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const fs = require("fs");
 const config = require("../config/auth.config.js");
-const userdecodedTokenId = require("../middleware/userDecodedTokenId.js");
+const userDecodedTokenId = require("../middleware/userDecodedTokenId.js");
 const htmlspecialchars = require("../middleware/htmlspecialchars.js");
 const passwordValidator = require("password-validator");
 const regex = require("../middleware/regex.js");
@@ -103,8 +103,8 @@ exports.signup = (req, res) => {
  * ********* Function : login User *********
  */
 exports.login = (req, res) => {
-  const password = String(req.body.passwords);
-  const email = String(req.body.emails);
+  const password = String(htmlspecialchars(req.body.passwords));
+  const email = String(htmlspecialchars(req.body.emails));
   db.user
     .findOne({
       where: {
@@ -135,18 +135,30 @@ exports.login = (req, res) => {
 exports.getOneUser = (req, res) => {
   db.user
     .findOne({
-      where: { idUsers: userdecodedTokenId(req) },
-      attributes: ["idUsers", "emails", "names", "firstnames", "image"],
+      where: { idUsers: userDecodedTokenId(req) },
     })
-    .then((user) => {
-      res.status(200).send(user);
+    .then(() => {
+      const id = req.params.id;
+      db.user
+        .findOne({
+          where: { idUsers: id },
+          attributes: ["idUsers", "emails", "names", "firstnames", "image"],
+        })
+        .then((user) => {
+          if (!user) {
+            return res.status(404).send({
+              message:
+                "Une erreur s'est produite lors de la récupération de User avec l'id :" +
+                id,
+            });
+          } else {
+            return res.status(200).send(user);
+          }
+        });
     })
     .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message ||
-          "Une erreur s'est produite lors de la récupération de User avec l'id:" +
-            id,
+      res.status(401).send({
+        message: err.message || "Utilisateur non trouvé ",
       });
     });
 };
@@ -157,7 +169,7 @@ exports.getAllUsers = (req, res) => {
   const idUsers = req.query.idUsers;
   let condition = idUsers ? { idUsers: { [Op.like]: `%${idUsers}%` } } : null;
   db.user
-    .findOne({ where: { idUsers: userdecodedTokenId(req) } })
+    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
     .then(() => {
       db.user
         .findAll({
@@ -166,21 +178,11 @@ exports.getAllUsers = (req, res) => {
         })
         .then((userAll) => {
           res.status(200).send(userAll);
-        })
-        .catch((err) => {
-          res.status(500).send({
-            message:
-              err.message ||
-              "Une erreur s'est produite lors de la récupération des idUsers",
-          });
         });
     })
     .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message ||
-          "Une erreur s'est produite lors de la récupération de User avec l'id:" +
-            id,
+      res.status(401).send({
+        message: err.message || "Utilisateur non trouvé ",
       });
     });
 };
@@ -190,7 +192,7 @@ exports.getAllUsers = (req, res) => {
 exports.updateUserImage = (req, res) => {
   db.user
     .findOne({
-      where: { idUsers: userdecodedTokenId(req) },
+      where: { idUsers: userDecodedTokenId(req) },
     })
     .then((user) => {
       if (user.image != "http://localhost:3000/images/avatarDefault.jpg") {
@@ -213,7 +215,7 @@ exports.updateUserImage = (req, res) => {
           },
           {
             where: {
-              idUsers: userdecodedTokenId(req),
+              idUsers: userDecodedTokenId(req),
             },
           }
         )

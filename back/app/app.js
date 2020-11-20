@@ -36,4 +36,5 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 //Router
 require("./routes/user.js")(app);
 require("./routes/publication.js")(app);
+require("./routes/comment.js")(app);
 module.exports = app;

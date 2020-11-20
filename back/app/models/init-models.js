@@ -13,23 +13,23 @@ function initModels(sequelize) {
   var user_disliked = _user_disliked(sequelize, Sequelize);
   var user_liked = _user_liked(sequelize, Sequelize);
 
-  comment.belongsTo(publication, { foreignKey: "idPublications" });
-  publication.hasMany(comment, { foreignKey: "publicationsId" });
+  /*  comment.belongsTo(publication, { foreignKey: "idPublications" });
+  publication.hasMany(comment, { foreignKey: "publicationsId" }); */
 
-  comment.belongsTo(user, { foreignKey: "idUsers" });
+  /* comment.belongsTo(user, { foreignKey: "idUsers" });
   user.hasMany(comment, { foreignKey: "usersId" });
+ */
+  message.belongsTo(user, { foreignKey: "idUsers" });
+  user.hasMany(message, { foreignKey: "usersId" });
 
-  //message.belongsTo(user, { foreignKey: "idUsers" });
-  //user.hasMany(message, { foreignKey: "usersId" });
+  /*  publication.belongsTo(user, { foreignKey: "idUsers" });
+  user.hasMany(publication, { foreignKey: "usersId" }); */
 
-  publication.belongsTo(user, { foreignKey: "idUsers" });
-  user.hasMany(publication, { foreignKey: "usersId" });
+  /*  user_disliked.belongsTo(publication, { foreignKey: "idPublications" });
+  publication.hasMany(user_disliked, { foreignKey: "publicationsId" }); */
 
-  user_disliked.belongsTo(publication, { foreignKey: "idPublications" });
-  publication.hasMany(user_disliked, { foreignKey: "publicationsId" });
-
-  user_disliked.belongsTo(user, { foreignKey: "idUsers" });
-  user.hasMany(user_disliked, { foreignKey: "usersId" });
+  /*   user_disliked.belongsTo(user, { foreignKey: "idUsers" });
+  user.hasMany(user_disliked, { foreignKey: "usersId" }); */
 
   user_liked.belongsTo(publication, { foreignKey: "idPublications" });
   publication.hasMany(user_liked, { foreignKey: "publicationsId" });

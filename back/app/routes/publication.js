@@ -1,13 +1,15 @@
 module.exports = (app) => {
   const auth = require("../middleware/authJwt.js");
+
+  const multer = require("../middleware/multer-config.js");
   const publication = require("../controllers/publication.js");
 
   let router = require("express").Router();
 
-  router.post("/create", publication.createPublication); // A trouvé une solution
-  router.get("/:id", auth, publication.getOnePublication); //Check
+  router.post("/create", auth, multer, publication.createPublication); // Check
+  router.get("/:id", auth, publication.getOnePublication); // Check
   router.get("/", auth, publication.getAllPublication); //Check
-  router.delete("/:id", auth, publication.deleteOnePublication); //Check
+  router.delete("/:id", auth, publication.deleteOnePublication); // non
 
   app.use("/api/publication", router);
 };

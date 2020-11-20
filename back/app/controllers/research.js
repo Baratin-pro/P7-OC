@@ -1,1 +1,0 @@
-exports.research = (req, res) => {};
