@@ -1,8 +1,7 @@
 const auth = require("../middleware/authJwt.js");
-
+const commentCtrl = require("../controllers/comment.js");
+let router = require("express").Router();
 module.exports = (app) => {
-  const commentCtrl = require("../controllers/comment.js");
-  let router = require("express").Router();
   //Router
   router.post("/create", auth, commentCtrl.createComment);
   router.get("/:id", auth, commentCtrl.getComment);

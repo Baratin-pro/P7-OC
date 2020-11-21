@@ -20,29 +20,20 @@ exports.createPublication = (req, res) => {
         descriptions: String(validator.escape(req.body.descriptions)),
         imagesUrl: image,
         publicationsDate: new Date(),
-        likes: 0,
-        dislikes: 0,
         usersId: user.idUsers,
       };
-
-      db.publication
-        .create(publication)
-        .then(() => {
-          res.status(201).send({ message: "Publication créé avec succes" });
-        })
-        .catch((err) => {
-          res.status(400).send({
-            message:
-              err.message ||
-              "Une erreur s'est produit lors de la création de la Publication",
-          });
-        });
+      db.publication.create(publication).then(() => {
+        res.status(201).send({ message: "Publication créé avec succes" });
+      });
     })
     .catch((err) => {
       res.status(500).send({
-        message:
-          err.message ||
-          "Une erreur s'est produit lors de l'identification de l'utilisateur",
+        message: err.message,
+      });
+    })
+    .catch((err) => {
+      res.status(401).send({
+        message: err.message || "Utilisateur non trouvé ",
       });
     });
 };
@@ -51,47 +42,63 @@ exports.createPublication = (req, res) => {
  */
 exports.getOnePublication = (req, res) => {
   const id = req.params.id;
-  let userLike = db.user_liked;
-  db.publication
-    .findOne({
-      where: { idPublications: id },
-      include: [
-        {
-          model: userLike,
-          as: "publication_liked",
-          attributes: [],
-        },
-        {
-          model: db.user_disliked,
-          as: "publication_disliked",
-          attributes: [],
-        },
-        {
-          model: db.comment,
-          as: "comment",
-          attributes: { exclude: ["usersId"] },
-          include: {
-            model: db.user,
-            as: "user",
-            attributes: ["names", "firstnames", "image"],
-          },
-        },
-        {
-          model: db.user,
-          as: "user",
-          attributes: ["names", "firstnames", "image"],
-        },
-      ],
-    })
-    .then((publication) => {
-      res.status(200).send(publication);
+  db.user
+    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+    .then(() => {
+      db.publication
+        .findOne({
+          where: { idPublications: id },
+          include: [
+            {
+              model: db.comment,
+              as: "comment",
+              attributes: { exclude: ["usersId"] },
+              include: {
+                model: db.user,
+                as: "user",
+                attributes: ["names", "firstnames", "image"],
+              },
+            },
+            {
+              model: db.user,
+              as: "user",
+              attributes: ["names", "firstnames", "image"],
+            },
+          ],
+        })
+        .then((publication) => {
+          db.user_liked
+            .findAndCountAll({ where: { publicationsId: id } })
+            .then((countLike) => {
+              db.user_disliked
+                .findAndCountAll({ where: { publicationsId: id } })
+                .then((countDislike) => {
+                  db.comment
+                    .findAndCountAll({ where: { publicationsId: id } })
+                    .then((countComment) => {
+                      publication
+                        .update({
+                          dislikes: countDislike.count,
+                          likes: countLike.count,
+                          commentCount: countComment.count,
+                          where: { publicationsId: id },
+                        })
+                        .then((publicationFinal) => {
+                          res.status(200).send(publicationFinal);
+                        });
+                    });
+                });
+            });
+        })
+        .catch((err) => {
+          res.status(500).send({
+            message: err.message,
+          });
+        });
     })
     .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message ||
-          "Une erreur s'est produite lors de la récupération de Publication avec l'id:" +
-            id,
+      res.status(401).send({
+        message: err.message || "Utilisateur non trouvé ",
       });
     });
 };
@@ -99,46 +106,133 @@ exports.getOnePublication = (req, res) => {
  * ********* Function : Get All Publication *********
  */
 exports.getAllPublication = (req, res) => {
-  const id = req.params.id;
-  let userLike = db.user_liked;
-  db.publication
-    .findAll({
-      include: [
-        {
-          model: userLike,
-          as: "publication_liked",
-          attributes: [],
-        },
-        {
-          model: db.user_disliked,
-          as: "publication_disliked",
-          attributes: [],
-        },
-        {
-          model: db.comment,
-          as: "comment",
-          attributes: { exclude: ["usersId"] },
-          include: {
-            model: db.user,
-            as: "user",
-            attributes: ["names", "firstnames", "image"],
-          },
-        },
-        {
-          model: db.user,
-          as: "user",
-          attributes: ["names", "firstnames", "image"],
-        },
-      ],
-    })
-    .then((publication) => {
-      res.status(200).send(publication);
+  let publicationsId = req.query.publicationsId;
+  let condition = publicationsId
+    ? { publicationsId: { [Op.like]: `%${publicationsId}%` } }
+    : null;
+  db.user
+    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+    .then(() => {
+      db.publication
+        .findAll({
+          where: condition,
+          include: [
+            {
+              model: db.comment,
+              as: "comment",
+              attributes: { exclude: ["usersId"] },
+              include: {
+                model: db.user,
+                as: "user",
+                attributes: ["names", "firstnames", "image"],
+              },
+            },
+            {
+              model: db.user,
+              as: "user",
+              attributes: ["names", "firstnames", "image"],
+            },
+          ],
+        })
+        .then((publicationInitiale) => {
+          publicationInitiale.forEach((element) => {
+            db.user_liked
+              .findAndCountAll({
+                where: { publicationsId: element.idPublications },
+              })
+              .then((countLike) => {
+                db.user_disliked
+                  .findAndCountAll({
+                    where: { publicationsId: element.idPublications },
+                  })
+                  .then((countDislike) => {
+                    db.comment
+                      .findAndCountAll({
+                        where: { publicationsId: element.idPublications },
+                      })
+                      .then((countComment) => {
+                        element.update({
+                          dislikes: countDislike.count,
+                          likes: countLike.count,
+                          commentCount: countComment.count,
+                          where: { idPublications: element.idPublications },
+                        });
+                      });
+                  });
+              });
+          });
+          res.status(200).send(publicationInitiale);
+        })
+        .catch((err) => {
+          res.status(500).send({
+            message: err.message,
+          });
+        });
     })
     .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message ||
-          "Une erreur s'est produite lors de la récupération des publications",
+      res.status(401).send({
+        message: err.message || "Utilisateur non trouvé ",
+      });
+    });
+};
+/*
+ * ********* Function : Update Publication *********
+ */
+exports.updatePublication = (req, res) => {
+  if (!req.body.title || !req.body.description) {
+    return res.status(400).send({ message: "Paramètre absent" });
+  }
+  const publicationReq = {
+    idPublication: req.params.id,
+    title: String(validator.escape(req.body.title)),
+    description: String(validator.escape(req.body.description)),
+    image: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
+  };
+  db.user
+    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+    .then(() => {
+      db.publication
+        .findOne({
+          where: { idPublications: publicationReq.idPublication },
+        })
+        .then((publication) => {
+          const filename = publication.imagesUrl.split("/images/")[1];
+          fs.unlink(`images/${filename}`, (err) => {
+            if (err) {
+              return console.log(err);
+            } else {
+              console.log("image supprimée !");
+            }
+            publication
+              .update({
+                titles: publicationReq.title,
+                descriptions: publicationReq.description,
+                imagesUrl: publicationReq.image,
+              })
+              .then(() => {
+                res.status(201).send({
+                  message:
+                    "Publication : " +
+                    publicationReq.idPublication +
+                    " a été modifié avec succès",
+                });
+              })
+              .catch((err) => {
+                res.status(500).send({
+                  message: err.message,
+                });
+              });
+          });
+        })
+        .catch((err) => {
+          res.status(404).send({
+            message: err.message || "Publication non trouvé",
+          });
+        });
+    })
+    .catch((err) => {
+      res.status(401).send({
+        message: err.message || "Utilisateur non trouvé ",
       });
     });
 };
@@ -175,41 +269,9 @@ exports.deleteOnePublication = (req, res) => {
             });
           } else {
             return res
-              .status(401)
+              .status(403)
               .send({ message: "Condition non respectée " });
           }
-        });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message ||
-          "Une erreur s'est produit lors de l'identification de l'utilisateur",
-      });
-    });
-};
-
-/* 
- * ********* Function : Count All Comment *********
- 
-exports.CountComment = (req, res) => {
-  const idComment = req.params.id;
-  db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-    .then(() => {
-      db.comment
-        .findAndCountAll({
-          where: {
-            publicationsId: idComment,
-          },
-        })
-        .then((pub) => {
-          res.status(200).send({ alpha_roméo: pub.count });
-        })
-        .catch((err) => {
-          res.status(500).send({
-            message: err,
-          });
         });
     })
     .catch((err) => {
@@ -217,4 +279,4 @@ exports.CountComment = (req, res) => {
         message: err.message || "Utilisateur non trouvé ",
       });
     });
-}; */
+};

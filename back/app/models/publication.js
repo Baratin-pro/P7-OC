@@ -24,13 +24,20 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.DATE,
         allowNull: false,
       },
+      commentCount: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
       likes: {
         type: Sequelize.INTEGER,
-        allowNull: true,
+        allowNull: false,
+        defaultValue: 0,
       },
       dislikes: {
         type: Sequelize.INTEGER,
-        allowNull: true,
+        allowNull: false,
+        defaultValue: 0,
       },
       usersId: {
         type: Sequelize.SMALLINT,

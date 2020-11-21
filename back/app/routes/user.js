@@ -1,9 +1,9 @@
 const auth = require("../middleware/authJwt.js");
 const multer = require("../middleware/multer-config.js");
+const userCtrl = require("../controllers/user.js");
+let router = require("express").Router();
 
 module.exports = (app) => {
-  const userCtrl = require("../controllers/user.js");
-  let router = require("express").Router();
   //Router
   router.post("/signup", userCtrl.signup);
   router.post("/login", /* user.limiter, */ userCtrl.login);
@@ -13,3 +13,19 @@ module.exports = (app) => {
   router.put("/:id", auth, multer, userCtrl.updateUserImage);
   app.use("/api/user", router);
 };
+
+/**
+ * *******Like*****
+ * post --> Envoyer
+ * get --> Afficher
+ *
+ * ***********Research**********
+ * post
+ * get
+ * **********User*********
+ * post
+ * delete
+ * put
+ * get
+ * getAll
+ */
