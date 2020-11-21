@@ -93,9 +93,7 @@ exports.signup = (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        message:
-          err.message ||
-          "Une erreur s'est produite lors de la création de user",
+        message: err.message,
       });
     });
 };
@@ -112,20 +110,24 @@ exports.login = (req, res) => {
       },
     })
     .then((user) => {
-      if (!user) {
-        return res.status(401).send({ message: "Utilisateur non trouvé " });
-      }
       bcrypt.compare(password, user.passwords).then((valid) => {
         if (!valid) {
-          return res.status(401).send({ message: "Mot de passe incorrecte" });
+          return res
+            .status(401)
+            .send({ message: "Mot de passe ou emails non trouvés " });
         } else {
+          res.status(200).send({
+            userId: user.idUsers,
+            token: jwt.sign({ userId: user.idUsers }, config.secret, {
+              expiresIn: "24h",
+            }),
+          });
         }
-        res.status(200).send({
-          userId: user.idUsers,
-          token: jwt.sign({ userId: user.idUsers }, config.secret, {
-            expiresIn: "24h",
-          }),
-        });
+      });
+    })
+    .catch(() => {
+      res.status(401).send({
+        message: "Mot de passe ou emails non trouvés ",
       });
     });
 };
@@ -133,12 +135,12 @@ exports.login = (req, res) => {
  * ********* Function : GetOne User *********
  */
 exports.getOneUser = (req, res) => {
+  const id = req.params.id;
   db.user
     .findOne({
       where: { idUsers: userDecodedTokenId(req) },
     })
     .then(() => {
-      const id = req.params.id;
       db.user
         .findOne({
           where: { idUsers: id },
@@ -178,6 +180,11 @@ exports.getAllUsers = (req, res) => {
         })
         .then((userAll) => {
           res.status(200).send(userAll);
+        })
+        .catch((err) => {
+          res.status(500).send({
+            message: err.message,
+          });
         });
     })
     .catch((err) => {
@@ -205,36 +212,61 @@ exports.updateUserImage = (req, res) => {
           }
         });
       }
-
-      db.user
-        .update(
-          {
-            image: `${req.protocol}://${req.get("host")}/images/${
-              req.file.filename
-            }`,
-          },
-          {
-            where: {
-              idUsers: userDecodedTokenId(req),
-            },
-          }
-        )
+      user
+        .update({
+          image: `${req.protocol}://${req.get("host")}/images/${
+            req.file.filename
+          }`,
+        })
         .then(() => {
           res.status(201).send({ message: " image créée !" });
         })
         .catch((err) => {
           res.status(500).send({
-            message:
-              err.message ||
-              "Une erreur s'est produite lors de la création de l'image ",
+            message: err.message,
           });
         });
     })
     .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message ||
-          "Une erreur s'est produite lors de la récupération de l'User ",
+      res.status(401).send({
+        message: err.message || "Utilisateur non trouvé ",
+      });
+    });
+};
+/*
+ * ********* Function : Delete User *********
+ */
+exports.deleteUser = (req, res) => {
+  const id = req.params.id;
+  db.user
+    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+    .then((user) => {
+      if (user.idUsers === id || user.role == 1) {
+        db.comment.destroy({ where: { usersId: id } }).then(() => {
+          db.user_liked.destroy({ where: { usersId: id } }).then(() => {
+            db.user_disliked.destroy({ where: { usersId: id } }).then(() => {
+              db.publication.destroy({ where: { usersId: id } }).then(() => {
+                db.user
+                  .destroy({ where: { idUsers: id } })
+                  .then(() => {
+                    res.status(200).send({ message: "User supprimé !" });
+                  })
+                  .catch((err) => {
+                    res.status(500).send({
+                      message: err.message,
+                    });
+                  });
+              });
+            });
+          });
+        });
+      } else {
+        return res.status(403).send({ message: "Condition non respectée " });
+      }
+    })
+    .catch((err) => {
+      res.status(401).send({
+        message: err.message || "Utilisateur non trouvé ",
       });
     });
 };

@@ -67,28 +67,36 @@ exports.getOnePublication = (req, res) => {
           ],
         })
         .then((publication) => {
-          db.user_liked
-            .findAndCountAll({ where: { publicationsId: id } })
-            .then((countLike) => {
-              db.user_disliked
-                .findAndCountAll({ where: { publicationsId: id } })
-                .then((countDislike) => {
-                  db.comment
-                    .findAndCountAll({ where: { publicationsId: id } })
-                    .then((countComment) => {
-                      publication
-                        .update({
-                          dislikes: countDislike.count,
-                          likes: countLike.count,
-                          commentCount: countComment.count,
-                          where: { publicationsId: id },
-                        })
-                        .then((publicationFinal) => {
-                          res.status(200).send(publicationFinal);
-                        });
-                    });
-                });
+          if (!publication) {
+            return res.status(404).send({
+              message:
+                "Une erreur s'est produite lors de la récupération de User avec l'id :" +
+                id,
             });
+          } else {
+            db.user_liked
+              .findAndCountAll({ where: { publicationsId: id } })
+              .then((countLike) => {
+                db.user_disliked
+                  .findAndCountAll({ where: { publicationsId: id } })
+                  .then((countDislike) => {
+                    db.comment
+                      .findAndCountAll({ where: { publicationsId: id } })
+                      .then((countComment) => {
+                        publication
+                          .update({
+                            dislikes: countDislike.count,
+                            likes: countLike.count,
+                            commentCount: countComment.count,
+                            where: { publicationsId: id },
+                          })
+                          .then((publicationFinal) => {
+                            res.status(200).send(publicationFinal);
+                          });
+                      });
+                  });
+              });
+          }
         })
         .catch((err) => {
           res.status(500).send({
@@ -196,33 +204,41 @@ exports.updatePublication = (req, res) => {
           where: { idPublications: publicationReq.idPublication },
         })
         .then((publication) => {
-          const filename = publication.imagesUrl.split("/images/")[1];
-          fs.unlink(`images/${filename}`, (err) => {
-            if (err) {
-              return console.log(err);
-            } else {
-              console.log("image supprimée !");
-            }
-            publication
-              .update({
-                titles: publicationReq.title,
-                descriptions: publicationReq.description,
-                imagesUrl: publicationReq.image,
-              })
-              .then(() => {
-                res.status(201).send({
-                  message:
-                    "Publication : " +
-                    publicationReq.idPublication +
-                    " a été modifié avec succès",
+          if (!publication) {
+            return res.status(404).send({
+              message:
+                "Une erreur s'est produite lors de la récupération de User avec l'id :" +
+                publicationReq.idPublication,
+            });
+          } else {
+            const filename = publication.imagesUrl.split("/images/")[1];
+            fs.unlink(`images/${filename}`, (err) => {
+              if (err) {
+                return console.log(err);
+              } else {
+                console.log("image supprimée !");
+              }
+              publication
+                .update({
+                  titles: publicationReq.title,
+                  descriptions: publicationReq.description,
+                  imagesUrl: publicationReq.image,
+                })
+                .then(() => {
+                  res.status(201).send({
+                    message:
+                      "Publication : " +
+                      publicationReq.idPublication +
+                      " a été modifié avec succès",
+                  });
+                })
+                .catch((err) => {
+                  res.status(500).send({
+                    message: err.message,
+                  });
                 });
-              })
-              .catch((err) => {
-                res.status(500).send({
-                  message: err.message,
-                });
-              });
-          });
+            });
+          }
         })
         .catch((err) => {
           res.status(404).send({
