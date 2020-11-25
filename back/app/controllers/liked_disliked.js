@@ -3,7 +3,6 @@ const db = require("../models");
 const Op = db.Sequelize.Op;
 //Protect
 const userDecodedTokenId = require("../middleware/userDecodedTokenId.js");
-
 /*
  * ********* Function : Create Liked *********
  */

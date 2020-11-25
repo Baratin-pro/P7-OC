@@ -218,26 +218,26 @@ exports.updatePublication = (req, res) => {
               } else {
                 console.log("image supprimée !");
               }
-              publication
-                .update({
-                  titles: publicationReq.title,
-                  descriptions: publicationReq.description,
-                  imagesUrl: publicationReq.image,
-                })
-                .then(() => {
-                  res.status(201).send({
-                    message:
-                      "Publication : " +
-                      publicationReq.idPublication +
-                      " a été modifié avec succès",
-                  });
-                })
-                .catch((err) => {
-                  res.status(500).send({
-                    message: err.message,
-                  });
-                });
             });
+            publication
+              .update({
+                titles: publicationReq.title,
+                descriptions: publicationReq.description,
+                imagesUrl: publicationReq.image,
+              })
+              .then(() => {
+                res.status(201).send({
+                  message:
+                    "Publication : " +
+                    publicationReq.idPublication +
+                    " a été modifié avec succès",
+                });
+              })
+              .catch((err) => {
+                res.status(500).send({
+                  message: err.message,
+                });
+              });
           }
         })
         .catch((err) => {
@@ -273,6 +273,16 @@ exports.deleteOnePublication = (req, res) => {
                   db.user_disliked
                     .destroy({ where: { publicationsId: id } })
                     .then(() => {
+                      const filename = publication.imagesUrl.split(
+                        "/images/"
+                      )[1];
+                      fs.unlink(`images/${filename}`, (err) => {
+                        if (err) {
+                          return console.log(err);
+                        } else {
+                          console.log("image supprimée !");
+                        }
+                      });
                       publication
                         .destroy({ where: { idPublications: id } })
                         .then(() => {

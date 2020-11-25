@@ -245,18 +245,56 @@ exports.deleteUser = (req, res) => {
         db.comment.destroy({ where: { usersId: id } }).then(() => {
           db.user_liked.destroy({ where: { usersId: id } }).then(() => {
             db.user_disliked.destroy({ where: { usersId: id } }).then(() => {
-              db.publication.destroy({ where: { usersId: id } }).then(() => {
-                db.user
-                  .destroy({ where: { idUsers: id } })
-                  .then(() => {
-                    res.status(200).send({ message: "User supprimé !" });
-                  })
-                  .catch((err) => {
-                    res.status(500).send({
-                      message: err.message,
+              db.publication
+                .findOne({ where: { usersId: id } })
+                .then((publication) => {
+                  db.comment
+                    .destroy({
+                      where: { publicationsId: publication.idPublications },
+                    })
+                    .then(() => {
+                      db.user_liked
+                        .destroy({
+                          where: {
+                            publicationsId: publication.idPublications,
+                          },
+                        })
+                        .then(() => {
+                          db.user_disliked
+                            .destroy({
+                              where: {
+                                publicationsId: publication.idPublications,
+                              },
+                            })
+                            .then(() => {
+                              const filename = publication.imagesUrl.split(
+                                "/images/"
+                              )[1];
+                              fs.unlink(`images/${filename}`, (err) => {
+                                if (err) {
+                                  return console.log(err);
+                                } else {
+                                  console.log("image supprimée !");
+                                }
+                              });
+                              publication.destroy().then(() => {
+                                db.user
+                                  .destroy({ where: { idUsers: id } })
+                                  .then(() => {
+                                    res
+                                      .status(200)
+                                      .send({ message: "User supprimé !" });
+                                  })
+                                  .catch((err) => {
+                                    res.status(500).send({
+                                      message: err.message,
+                                    });
+                                  });
+                              });
+                            });
+                        });
                     });
-                  });
-              });
+                });
             });
           });
         });
