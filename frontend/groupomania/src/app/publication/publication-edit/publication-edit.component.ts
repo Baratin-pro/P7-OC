@@ -9,7 +9,7 @@ export class PublicationEditComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit() {
+  ngOnInit(): void {
   }
 
 }

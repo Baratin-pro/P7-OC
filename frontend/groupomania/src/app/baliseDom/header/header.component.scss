@@ -1,0 +1,11 @@
+.topbar {
+  border-bottom: rgb(255, 0, 140) 1px solid;
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  left: 0;
+  right: 0;
+  .topbar_img {
+    height: 250%;
+  }
+}

@@ -6,10 +6,21 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./footer.component.scss']
 })
 export class FooterComponent implements OnInit {
+ mobile: boolean = false;
 
   constructor() { }
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.widthCalcul();
   }
+
+  widthCalcul(): any {
+    if (screen.width < 700){
+      this.mobile = true;
+    }
+    else { this.mobile = false;
+    }
+  }
+
 
 }

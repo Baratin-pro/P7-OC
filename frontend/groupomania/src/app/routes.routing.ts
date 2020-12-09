@@ -10,18 +10,18 @@ import { FourOhFourComponent } from './four-oh-four/four-oh-four.component';
 import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
+   // Auth
+   { path: 'auth/signup', component: SignupComponent },
+   { path: '', component: SignupComponent },
+   { path: 'auth/login', component: LoginComponent },
   // Publication
-  { path: 'editPublication', component: PublicationEditComponent },
+  { path: 'editPublication', component: PublicationEditComponent, },
   { path: 'publication/:id', component: PublicationDetailComponent },
   { path: 'accueil', component: PublicationListComponent },
-  { path: '', component: PublicationListComponent },
   // User
-  { path: 'users', component: UserListComponent },
+  { path: 'm.users', component: UserListComponent },
   { path: 'user/:id', component: UserDetailComponent },
-  { path: 'profile', component: UserProfileComponent },
-  // Auth
-  { path: 'auth/signup', component: SignupComponent },
-  { path: 'auth/login', component: LoginComponent },
+  { path: 'm.profile', component: UserProfileComponent },
   // 404
   { path: 'not-found', component: FourOhFourComponent },
   {path: '**', redirectTo: 'not-found' }

@@ -1,3 +1,7 @@
-<p>
-  publication-list works!
-</p>
+<article class="publicationList_article" *ngFor="let publication of publications">
+  <h2 class="publicationList_title">{{publication.titles}}</h2>
+  <div class="publicationList_containerImg"> 
+    <img class="publicationList_img" src="{{publication.imagesUrl}}" alt="{{publication.titles}}">
+  </div>
+  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates quibusdam consequuntur dignissimos aliquid, voluptas ea molestias quo fuga. Impedit autem architecto laboriosam quos magnam dolorum ipsum eaque exercitationem perspiciatis expedita.</p>
+</article>

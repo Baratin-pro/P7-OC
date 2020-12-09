@@ -1,17 +1,81 @@
-<form action="">
-  <div>
-    <label for="email">Email :</label>
-    <input type="email" name="email" id="email" placeholder="Email...">
-  </div>
-  <div>
-    <label for="password">Mot de passe :</label>
-    <input type="password" name="password" id="password" placeholder="Mot de passe...">
-  </div>
-  <div>
-    <label for="name">Nom :</label>
-    <input type="name" name="name" id="name" placeholder="Nom de famille...">
-    <label for="firstname">Prénom :</label>
-    <input type="firstname" name="firstname" id="firstname" placeholder="Prénom...">
-  </div>
-  <input type="submit" value="Enregistrer">
+<mat-spinner *ngIf="loading"></mat-spinner>
+<form [formGroup]="signupForm" *ngIf="!loading" class="form">
+
+<!-------------------------Lastname-------------------------------------------> 
+  <mat-form-field appearance="outline">
+    <mat-label>Nom de famille</mat-label>
+    <input  type="text" 
+            matInput class="form_control"  
+            formControlName="names"
+            id="names" 
+            placeholder="Schwarzenegger">
+            <mat-error *ngIf="this.signupForm.controls.names.hasError('required')">
+              Le nom de famille est <strong> requis </strong>
+            </mat-error>
+            <mat-error *ngIf="this.signupForm.controls.names.hasError('pattern') && !this.signupForm.controls.names.hasError('required')">
+              Le nom de famille est <strong> incorrect </strong>
+            </mat-error>
+  </mat-form-field>
+
+<!-------------------------Firstname-------------------------------------------> 
+  <mat-form-field appearance="outline">
+    <mat-label>Prénom</mat-label>
+    <input  type="text" 
+            matInput class="form_control"  
+            formControlName="firstnames"
+            id="firstnames" 
+            placeholder="Paul">
+           <mat-error *ngIf="this.signupForm.controls.firstnames.hasError('required')">
+              Le prénom est <strong> requis </strong>
+            </mat-error>
+            <mat-error *ngIf="this.signupForm.controls.firstnames.hasError('pattern') && !this.signupForm.controls.firstnames.hasError('required')">
+              Le prénom est <strong> incorrect </strong>
+            </mat-error>
+  </mat-form-field>
+
+<!-------------------------EMAIL-------------------------------------------> 
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input  type="email" 
+            matInput class="form_control"  
+            formControlName="emails" 
+            id="emails" 
+            placeholder="exemple@groupomania.fr">
+           <mat-error *ngIf="this.signupForm.controls.emails.hasError('email') && !this.signupForm.controls.emails.hasError('required')">
+              Veuillez entrer une adresse email valide !
+            </mat-error>
+            <mat-error *ngIf="this.signupForm.controls.emails.hasError('required')">
+              L'adresse email est <strong> requis </strong>
+            </mat-error>
+  </mat-form-field>
+
+<!-------------------------Password-------------------------------------------> 
+  <mat-form-field appearance="outline">
+    <mat-label>Mot de passe</mat-label>
+    <input  matInput 
+            [type]="hide ?'text' : 'password' "  
+            formControlName="passwords">
+    <mat-error *ngIf="this.signupForm.controls.passwords.hasError('required')">
+      Le mot de passe est <strong> requis </strong>
+    </mat-error>
+    <mat-error *ngIf="this.signupForm.controls.passwords.hasError.length && !this.signupForm.controls.passwords.hasError('required')">
+      Le mot de passe doit être <strong> supérieur à 8 caractères </strong>
+    </mat-error>
+    <mat-error *ngIf="this.signupForm.controls.passwords.hasError('pattern') && !this.signupForm.controls.passwords.hasError('required')">
+      Le mot de passe doit contenir au minimum <strong> une majuscule et un nombre </strong>
+    </mat-error>
+    <mat-icon type="button" 
+              mat-icon-button matSuffix (click)="hide = !hide" 
+              [attr.aria-label]="'Hide password'" 
+              [attr.aria-pressed]="hide">
+              {{hide ? 'visibility_off' : 'visibility'}}
+    </mat-icon>
+  </mat-form-field>
+  <button class="form_btnSubmit"
+          mat-raised-button 
+          color="primary" 
+          [disabled]="signupForm.invalid" 
+          (click)="onSumitForm()">S'INSCRIRE
+  </button>
+  <p class="text-danger" *ngIf="errorMsg">{{ errorMsg }}</p>
 </form>

@@ -1,3 +1,15 @@
-<p>
-  user-list works!
+<mat-spinner *ngIf="loading"></mat-spinner>
+<p *ngIf="!loading && users.length <= 0">
+  Aucun utilisateur inscrit
 </p>
+<section class="userList_section"  *ngIf="!loading && users.length > 0">
+  <h2 class="userList_title">Liste des membres de Groupomania</h2>
+  <article class="userList_container" *ngFor="let user of users">
+    <img class="userList_img" src="{{user.image}}" alt="{{user.name}} {{user.firstname}}">
+    <div class="userList_content">
+      <h3  class="userList_subtitle">{{user.names}} {{user.firstnames}}</h3>
+      <a class="userList_link" href="mailto:{{user.emails}}">{{user.emails}}</a>
+    </div>
+    <div *ngIf="erreur">Nous vous prions de nous excuser de la gêne occasionnée. Nous rencontrons des problèmes de connexion au serveur.</div>
+  </article>
+</section>

@@ -1,0 +1,17 @@
+.publicationList_article {
+  width: 95%;
+  margin: 10px auto;
+  border: rgb(192, 171, 171) 1px solid;
+  .publicationList_title {
+    margin-top: 10px;
+    text-align: center;
+  }
+  .publicationList_containerImg {
+    margin: auto;
+    width: 80%;
+    height: 10%;
+    .publicationList_img {
+      height: 100%;
+    }
+  }
+}

@@ -32,7 +32,7 @@ schema
   .lowercase()
   // Must have at least 1 digits
   .has()
-  .digits(1)
+  .digits()
   // Should not have spaces
   .has()
   .not()
@@ -170,28 +170,28 @@ exports.getOneUser = (req, res) => {
 exports.getAllUsers = (req, res) => {
   const idUsers = req.query.idUsers;
   let condition = idUsers ? { idUsers: { [Op.like]: `%${idUsers}%` } } : null;
-  db.user
+  /* db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-    .then(() => {
-      db.user
-        .findAll({
-          where: condition,
-          attributes: ["idUsers", "names", "firstnames", "image"],
-        })
-        .then((userAll) => {
-          res.status(200).send(userAll);
-        })
-        .catch((err) => {
-          res.status(500).send({
-            message: err.message,
-          });
-        });
+    .then(() => { */
+  db.user
+    .findAll({
+      where: condition,
+      attributes: ["idUsers", "names", "firstnames", "image", "emails"],
     })
+    .then((userAll) => {
+      res.status(200).send(userAll);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message,
+      });
+    });
+  /* })
     .catch((err) => {
       res.status(401).send({
         message: err.message || "Utilisateur non trouvé ",
       });
-    });
+    }); */
 };
 /*
  * ********* Function : update Image User *********

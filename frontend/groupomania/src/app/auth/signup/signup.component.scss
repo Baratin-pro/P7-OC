@@ -1,0 +1,11 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  margin: 20px auto;
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+  .form_btnSubmit {
+    margin-top: 10px;
+  }
+}

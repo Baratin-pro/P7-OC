@@ -1,3 +1,21 @@
-<p>
-  user-profile works!
-</p>
+<div class="profile" *ngFor="let user of users" >
+  <div class="profile_header" >
+    <img class="profile_img" src="{{user.image}}" alt="{{user.firstnames}} {{user.names}}">
+    <h2 class="profile_title">{{user.firstnames}} <span class="profile_names">{{user.names}}</span></h2>
+  </div>
+  <div class="profile_content">
+    <div class="profile_container profile_container--btn">
+      <button button mat-stroked-button> Modifier l'image du profil </button>
+      <button button mat-stroked-button> Supprimer le profil </button>
+    </div>
+    <div class="profile_container">
+      <p>{{today | date:'HH:mm'}}</p>
+      <p class="gray" >Heure local</p>
+    </div>
+    <div class="profile_container">
+    <a class="profile_link" href="mailto:{{user.email}}">{{user.email}}</a>
+    <p class="gray">E-mail</p>
+
+    </div>
+  </div>
+</div>

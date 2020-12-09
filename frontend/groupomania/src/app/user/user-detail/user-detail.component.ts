@@ -9,7 +9,7 @@ export class UserDetailComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit() {
+  ngOnInit(): void {
   }
 
 }

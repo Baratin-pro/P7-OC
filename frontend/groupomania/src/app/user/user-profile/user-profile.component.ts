@@ -1,4 +1,7 @@
+import { AuthService } from './../../services/auth.service';
+import { User } from './../../models/User.model';
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-profile',
@@ -6,10 +9,23 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./user-profile.component.scss']
 })
 export class UserProfileComponent implements OnInit {
+  today: number = Date.now();
+  users: User;
+  userId: string;
+  loading: boolean;
+  errMsg: string;
+  constructor(private auth: AuthService,
+              private route: ActivatedRoute,
+              private router: Router) { }
 
-  constructor() { }
-
-  ngOnInit() {
+  ngOnInit(): void {
+    this.onfetchUser();
   }
 
+  onfetchUser(): any {
+    /* this.userId = this.auth.
+    this.loading = true;
+    this.route.params */
+
+  }
 }

@@ -1,11 +1,13 @@
-<form action="">
-  <div>
-    <label for="email">Email :</label>
-    <input type="email" name="email" id="email" placeholder="Email...">
+<mat-spinner *ngIf="loading"></mat-spinner>
+<form [formGroup]="loginForm" *ngIf="!loading">
+  <div class="form-group">
+    <label for="emails">Email</label>
+    <input type="emails" class="form-control" id="emails" formControlName="emails">
   </div>
-  <div>
-    <label for="password">Mot de passe :</label>
-    <input type="password" name="password" id="password" placeholder="Mot de passe...">
+  <div class="form-group">
+    <label for="passwords">Password</label>
+    <input type="passwords" class="form-control" id="passwords" formControlName="passwords">
   </div>
-  <input type="submit" value="Se connecter">
+  <button mat-raised-button color="primary" [disabled]="loginForm.invalid" (click)="onLogin()">LOGIN</button>
+  <p class="text-danger" *ngIf="errorMsg">{{ errorMsg }}</p>
 </form>

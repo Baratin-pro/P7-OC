@@ -13,7 +13,6 @@ import { PublicationEditComponent } from './publication/publication-edit/publica
 import { PublicationDetailComponent } from './publication/publication-detail/publication-detail.component';
 import { FourOhFourComponent } from './four-oh-four/four-oh-four.component';
 import { FooterComponent } from './baliseDom/footer/footer.component';
-import { NavComponent } from './baliseDom/nav/nav.component';
 import { HeaderComponent } from './baliseDom/header/header.component';
 // Service
 // Material
@@ -42,7 +41,6 @@ import { HttpClientModule } from '@angular/common/http';
       LoginComponent,
       HeaderComponent,
       FooterComponent,
-      NavComponent,
       FourOhFourComponent,
       PublicationDetailComponent,
       PublicationEditComponent,

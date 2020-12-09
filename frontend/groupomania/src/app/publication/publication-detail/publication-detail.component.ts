@@ -1,3 +1,6 @@
+import { PublicationService } from './../../services/publication.service';
+
+
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -7,9 +10,10 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PublicationDetailComponent implements OnInit {
 
-  constructor() { }
+  constructor(private publicationsService: PublicationService ) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
   }
+
 
 }
