@@ -1,13 +1,49 @@
 <mat-spinner *ngIf="loading"></mat-spinner>
-<form [formGroup]="loginForm" *ngIf="!loading">
-  <div class="form-group">
-    <label for="emails">Email</label>
-    <input type="emails" class="form-control" id="emails" formControlName="emails">
-  </div>
-  <div class="form-group">
-    <label for="passwords">Password</label>
-    <input type="passwords" class="form-control" id="passwords" formControlName="passwords">
-  </div>
-  <button mat-raised-button color="primary" [disabled]="loginForm.invalid" (click)="onLogin()">LOGIN</button>
-  <p class="text-danger" *ngIf="errorMsg">{{ errorMsg }}</p>
+<form [formGroup]="loginForm" *ngIf="!loading" class="form">
+ <!-------------------------EMAIL-------------------------------------------> 
+ <mat-form-field appearance="outline">
+  <mat-label>Email</mat-label>
+  <input  type="email" 
+          matInput class="form_control"  
+          formControlName="emails" 
+          id="emails" 
+          placeholder="exemple@groupomania.fr">
+         <mat-error *ngIf="this.loginForm.controls.emails.hasError('email') && !this.loginForm.controls.emails.hasError('required')">
+            Veuillez entrer une adresse email valide !
+          </mat-error>
+          <mat-error *ngIf="this.loginForm.controls.emails.hasError('required')">
+            L'adresse email est <strong> requis </strong>
+          </mat-error>
+</mat-form-field>
+
+<!-------------------------Password-------------------------------------------> 
+<mat-form-field appearance="outline">
+  <mat-label>Mot de passe</mat-label>
+  <input  matInput 
+          [type]="hide ?'text' : 'password' "  
+          formControlName="passwords">
+  <mat-error *ngIf="this.loginForm.controls.passwords.hasError('required')">
+    Le mot de passe est <strong> requis </strong>
+  </mat-error>
+  <mat-error *ngIf="this.loginForm.controls.passwords.hasError.length && !this.loginForm.controls.passwords.hasError('required')">
+    Le mot de passe doit être <strong> supérieur à 8 caractères </strong>
+  </mat-error>
+  <mat-error *ngIf="this.loginForm.controls.passwords.hasError('pattern') && !this.loginForm.controls.passwords.hasError('required')">
+    Le mot de passe doit contenir au minimum <strong> une majuscule et un nombre </strong>
+  </mat-error>
+  <mat-icon class="form_btnHide"
+            type="button" 
+            mat-icon-button matSuffix (click)="hide = !hide" 
+            [attr.aria-label]="'Hide password'" 
+            [attr.aria-pressed]="hide">
+            {{hide ? 'visibility_off' : 'visibility'}}
+  </mat-icon>
+</mat-form-field>
+<button class="form_btnSubmit"
+        mat-raised-button 
+        color="primary" 
+        [disabled]="loginForm.invalid" 
+        (click)="onSumitForm()">SE CONNECTER
+</button>
+<p class="text-danger" *ngIf="errorMsg">{{ errorMsg }}</p>
 </form>

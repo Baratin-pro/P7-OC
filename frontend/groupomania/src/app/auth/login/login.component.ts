@@ -1,7 +1,9 @@
+import { User } from 'src/app/models/User.model';
 import { Router } from '@angular/router';
-import { AuthService } from './../../services/auth.service';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
+import { AuthService } from 'src/app/services/auth.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -13,6 +15,12 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading: boolean;
   errMsg: string;
+  
+  // Identification
+
+  isAuth$ = new BehaviorSubject<boolean>(false);
+  private authToken: string;
+  private userId: string;
 
   constructor(private formBuilder: FormBuilder,
               private auth: AuthService,
@@ -24,20 +32,38 @@ export class LoginComponent implements OnInit {
 
   onLoginForm(): any{
     this.loginForm = this.formBuilder.group({
-      emails: [null, [Validators.required, Validators.email]],
-      passwords: [null, Validators.required]
-    });
+      emails: new FormControl (null, 
+              [Validators.required, 
+              Validators.email]),
+      passwords: new FormControl (null, 
+                  [Validators.required,
+                  Validators.pattern('(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z]).{8,100}')])
+    })
   }
-
-  onLogin(): any{
+  onSumitForm(): any{
     this.loading = true;
-    const emails = this.loginForm.get('emails').value;
-    const passwords = this.loginForm.get('passwords').value;
-    this.auth.loginUser(emails, passwords).subscribe(
-      () => {
-        this.loading = false;
-        this.router.navigate(['/accueil']);
-      }
+
+    // Recovery value
+    const userValue = {
+      emails: this.loginForm.get('emails').value,
+      passwords: this.loginForm.get('passwords').value,
+    }
+
+    const userLogin = new User(
+      userValue.passwords,
+      null,
+      null,
+      userValue.emails,
+    )
+    this.auth.loginUser(userLogin.emails, userLogin.passwords)
+    .subscribe(
+      (response: {userId: string, token: string} ) => {
+      this.userId = response.userId;
+      this.authToken = response.token;
+      this.isAuth$.next(true);
+      this.loading = false;
+      this.router.navigate(['/accueil']);
+    }
     )
   }
 }

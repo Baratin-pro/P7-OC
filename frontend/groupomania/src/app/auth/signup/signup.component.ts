@@ -31,21 +31,32 @@ export class SignupComponent implements OnInit  {
   }
 
   // Check value
+
   onSignupForm(): any {
     this.signupForm  = this.formBuilder.group({
-      emails: new FormControl (null, [Validators.required, Validators.email]),
-      passwords: new FormControl(null,  [Validators.required, 
-                                        Validators.minLength(8), Validators.pattern('(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z]).{8,100}')]),
-      firstnames: new FormControl (null, [Validators.required, Validators.pattern('^[a-zA-Z]+[^&><"\'=/!£$]+(([-][a-zA-Z ])?[a-zA-Z]*)*$')]), 
-      names: new FormControl (null, [Validators.required, Validators.pattern('^[a-zA-Z]+[^&><"\'=/!£$]+(([-][a-zA-Z ])?[a-zA-Z]*)*$')])
+      emails: new FormControl (null, 
+                              [Validators.required, 
+                              Validators.email]),
+      passwords: new FormControl(null,    
+                                [Validators.required, 
+                                Validators.minLength(8), 
+                                Validators.pattern('(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z]).{8,100}')]),
+      firstnames: new FormControl (null, 
+                                  [Validators.required, 
+                                  Validators.pattern('^[a-zA-Z]+[^&><"\'=/!£$]+(([-][a-zA-Z ])?[a-zA-Z]*)*$')]), 
+      names: new FormControl (null, 
+                              [Validators.required, 
+                              Validators.pattern('^[a-zA-Z]+[^&><"\'=/!£$]+(([-][a-zA-Z ])?[a-zA-Z]*)*$')])
     });
   }
    // While signup
+
   onSumitForm(): void{
    
     this.loading = true;
 
     // Recovery value
+
     const userValue = {
       emails: this.signupForm.get('emails').value,
       passwords: this.signupForm.get('passwords').value,
@@ -54,6 +65,7 @@ export class SignupComponent implements OnInit  {
     }
   
     // Recovery model User
+
     const newUser = new User(
       userValue.passwords,
       userValue.names,
@@ -62,6 +74,7 @@ export class SignupComponent implements OnInit  {
     )
 
     // Function: create User then login him
+
     this.authService.createUser(newUser)
     .subscribe(
       (response: { message: string }) => {

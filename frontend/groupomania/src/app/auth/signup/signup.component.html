@@ -64,7 +64,8 @@
     <mat-error *ngIf="this.signupForm.controls.passwords.hasError('pattern') && !this.signupForm.controls.passwords.hasError('required')">
       Le mot de passe doit contenir au minimum <strong> une majuscule et un nombre </strong>
     </mat-error>
-    <mat-icon type="button" 
+    <mat-icon class="form_btnHide"
+              type="button" 
               mat-icon-button matSuffix (click)="hide = !hide" 
               [attr.aria-label]="'Hide password'" 
               [attr.aria-pressed]="hide">

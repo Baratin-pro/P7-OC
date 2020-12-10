@@ -5,7 +5,10 @@
   min-width: 150px;
   max-width: 500px;
   width: 100%;
-  .form_btnSubmit {
+  &_btnHide {
+    cursor: pointer;
+  }
+  &_btnSubmit {
     margin-top: 10px;
   }
 }
