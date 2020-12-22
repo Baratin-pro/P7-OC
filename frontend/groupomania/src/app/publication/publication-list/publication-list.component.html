@@ -1,7 +1,68 @@
-<article class="publicationList_article" *ngFor="let publication of publications">
-  <h2 class="publicationList_title">{{publication.titles}}</h2>
-  <div class="publicationList_containerImg"> 
-    <img class="publicationList_img" src="{{publication.imagesUrl}}" alt="{{publication.titles}}">
-  </div>
-  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates quibusdam consequuntur dignissimos aliquid, voluptas ea molestias quo fuga. Impedit autem architecto laboriosam quos magnam dolorum ipsum eaque exercitationem perspiciatis expedita.</p>
-</article>
+<section>
+  <h2 class="publicationList_title">Liste des publications de Groupomania</h2>
+  <mat-card class="publicationList_card"  *ngFor="let publication of publications">
+    <mat-card-header class="publicationList_card_header" (click)="onClickPublication(publication.idPublications)">
+      <div mat-card-avatar class="publicationList_card_header_img" style="background-image: url({{publication.user.image}});"></div>
+      <mat-card-title class="publicationList_card_header_title">{{publication.user.names}} {{publication.user.firstnames}} </mat-card-title>
+      <mat-card-subtitle> Publié à {{publication.publicationsDate | date:' HH:mm le dd/mm/yy '}}</mat-card-subtitle>
+    </mat-card-header>
+      <img  class="publicationList_card_img" 
+          mat-card-image [src]="publication.imagesUrl" 
+          alt="Image postée concernant {{publication.titles}}" 
+          (click)="onClickPublication(publication.idPublications)"> 
+    <mat-card-content class="publicationList_card_content">
+      <h3 class="publicationList_card_content_title">{{publication.titles}}</h3>
+      <p *ngIf="this.onDescriptionlength(publication.descriptions)" class="publicationList_card_content_description">{{this.onDescriptionlength(publication.descriptions)}}</p>
+    </mat-card-content>
+    <mat-card-actions class="publicationList_card_emoji">
+      <button mat-button
+              matBadge="{{publication.likes}}"
+              matBadgePosition="after"
+              matBadgeOverlap="false"
+              (click)="onLiked(publication.idPublications)"> 
+        <mat-icon class="publicationList_card_emoji_icon publicationList_card_emoji_icon--thumb">thumb_up</mat-icon>
+      </button>
+      <button mat-button 
+              matBadge="{{publication.dislikes}}"
+              matBadgePosition="after"
+              matBadgeOverlap="false"
+              (click)="onDisliked(publication.idPublications)">
+        <mat-icon class="publicationList_card_emoji_icon publicationList_card_emoji_icon--thumb">thumb_down</mat-icon>
+      </button>
+      <div    class="publicationList_card_emoji_comment"
+              mat-button 
+              matBadge="{{publication.commentCount}}" 
+              matBadgePosition="after"
+              matBadgeOverlap="false">
+          <mat-icon class="publicationList_card_emoji_icon">comment</mat-icon>
+      </div>
+    </mat-card-actions>
+    <mat-card-content class="commentList_card" *ngFor="let comment of publication.comment">
+      <mat-card-header  class="commentList_card_container"> 
+        <div mat-card-avatar class="commentList_card_container_img" style="background-image: url({{comment.user.image}});"></div>
+        <div class="commentList_card_container_description">
+          <mat-card-title class="commentList_card_container_description_title">{{comment.user.names}} {{comment.user.firstnames}}</mat-card-title>
+          <div class="commentList_card_container_description_content" >{{comment.comments}}</div>
+        </div>
+      </mat-card-header>
+    </mat-card-content>
+    <mat-card-actions>
+      <form class="publicationList_card_form">
+        <mat-form-field appearance="outline" class="publicationList_card_form_field">
+          <mat-label>Envoyez un commentaire</mat-label>
+          <input  matInput 
+                  #message 
+                  maxlength= "1200">
+          <mat-hint class="publicationList_card_form_lineBottom" align= "start">{{message.value.length}} / 1200 </mat-hint>
+          <mat-hint class="publicationList_card_form_lineBottom publicationList_card_form_lineBottom--icon" 
+                    align= "end">
+            <button mat-button>
+              <mat-icon>send</mat-icon>
+            </button>
+          </mat-hint>
+        </mat-form-field>
+      </form>
+    </mat-card-actions>
+  </mat-card>
+</section>
+

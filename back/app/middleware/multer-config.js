@@ -1,3 +1,5 @@
+"use strict";
+
 const multer = require("multer");
 
 const MIME_TYPES = {
@@ -11,7 +13,7 @@ const MIME_TYPES = {
 
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
-    callback(null, "images");
+    callback(null, "app/images");
   },
   filename: (req, file, callback) => {
     const generateName = Math.floor(

@@ -11,16 +11,5 @@ export class FooterComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    this.widthCalcul();
   }
-
-  widthCalcul(): any {
-    if (screen.width < 700){
-      this.mobile = true;
-    }
-    else { this.mobile = false;
-    }
-  }
-
-
 }

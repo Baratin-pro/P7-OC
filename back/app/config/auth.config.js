@@ -1,3 +1,5 @@
+"use strict";
+
 function generateToken(n) {
   let alphabet =
     "0123456789azertyuiopqsdfghjklmwxcvbnAZERTYUIOPQSDFGHJKLMWXCVBN";

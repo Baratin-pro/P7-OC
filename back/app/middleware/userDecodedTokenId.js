@@ -1,3 +1,5 @@
+"use strict";
+
 const userDecodedTokenId = (req) => {
   return req.user.userId;
 };

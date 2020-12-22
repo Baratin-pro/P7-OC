@@ -1,3 +1,5 @@
+"use strict";
+
 //Way to model
 const db = require("../models");
 const rateLimit = require("express-rate-limit");
@@ -103,14 +105,17 @@ exports.signup = (req, res) => {
 exports.login = (req, res) => {
   const password = String(htmlspecialchars(req.body.passwords));
   const email = String(htmlspecialchars(req.body.emails));
+  // Find user in the database
   db.user
     .findOne({
       where: {
         emails: email,
       },
     })
+    // Check idendity
     .then((user) => {
       bcrypt.compare(password, user.passwords).then((valid) => {
+        // Return responses of server
         if (!valid) {
           return res
             .status(401)
@@ -135,28 +140,21 @@ exports.login = (req, res) => {
  * ********* Function : GetOne User *********
  */
 exports.getOneUser = (req, res) => {
-  const id = req.params.id;
+  // Find user in the database
   db.user
     .findOne({
       where: { idUsers: userDecodedTokenId(req) },
+      attributes: ["idUsers", "emails", "names", "firstnames", "image"],
     })
-    .then(() => {
-      db.user
-        .findOne({
-          where: { idUsers: id },
-          attributes: ["idUsers", "emails", "names", "firstnames", "image"],
-        })
-        .then((user) => {
-          if (!user) {
-            return res.status(404).send({
-              message:
-                "Une erreur s'est produite lors de la récupération de User avec l'id :" +
-                id,
-            });
-          } else {
-            return res.status(200).send(user);
-          }
+    // Return responses of server
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({
+          message: "Une erreur s'est produite lors de la récupération de User ",
         });
+      } else {
+        return res.status(200).send(user);
+      }
     })
     .catch((err) => {
       res.status(401).send({
@@ -168,43 +166,50 @@ exports.getOneUser = (req, res) => {
  * ********* Function : GetAll User *********
  */
 exports.getAllUsers = (req, res) => {
-  const idUsers = req.query.idUsers;
-  let condition = idUsers ? { idUsers: { [Op.like]: `%${idUsers}%` } } : null;
-  /* db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-    .then(() => { */
+  const allUsers = req.query.idUsers;
+  // Find user in the database
   db.user
-    .findAll({
-      where: condition,
-      attributes: ["idUsers", "names", "firstnames", "image", "emails"],
+    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+    // Find all user in the database
+    .then((user) => {
+      if (!user) {
+        res.status(401).send({
+          message: err.message || "Utilisateur non trouvé ",
+        });
+      }
+      return db.user.findAll({
+        where: allUsers,
+        attributes: ["idUsers", "names", "firstnames", "image", "emails"],
+      });
     })
-    .then((userAll) => {
-      res.status(200).send(userAll);
+    .then((usersFindAll) => {
+      res.status(200).send(usersFindAll);
     })
     .catch((err) => {
       res.status(500).send({
         message: err.message,
       });
     });
-  /* })
-    .catch((err) => {
-      res.status(401).send({
-        message: err.message || "Utilisateur non trouvé ",
-      });
-    }); */
 };
 /*
  * ********* Function : update Image User *********
  */
 exports.updateUserImage = (req, res) => {
+  // Find user in the database
   db.user
     .findOne({
       where: { idUsers: userDecodedTokenId(req) },
     })
     .then((user) => {
+      if (!user) {
+        res.status(401).send({
+          message: err.message || "Utilisateur non trouvé ",
+        });
+      }
+      // Delete img for modify him
       if (user.image != "http://localhost:3000/images/avatarDefault.jpg") {
         const filename = user.image.split("/images/")[1];
-        fs.unlink(`images/${filename}`, (err) => {
+        fs.unlink(`app/images/${filename}`, (err) => {
           if (err) {
             return console.log(err);
           } else {
@@ -212,24 +217,20 @@ exports.updateUserImage = (req, res) => {
           }
         });
       }
-      user
-        .update({
-          image: `${req.protocol}://${req.get("host")}/images/${
-            req.file.filename
-          }`,
-        })
-        .then(() => {
-          res.status(201).send({ message: " image créée !" });
-        })
-        .catch((err) => {
-          res.status(500).send({
-            message: err.message,
-          });
-        });
+      //Modify image of the user
+      return user.update({
+        image: `${req.protocol}://${req.get("host")}/images/${
+          req.file.filename
+        }`,
+      });
+    })
+    // Return responses of server
+    .then(() => {
+      res.status(201).send({ message: " image créée !" });
     })
     .catch((err) => {
-      res.status(401).send({
-        message: err.message || "Utilisateur non trouvé ",
+      res.status(500).send({
+        message: err.message,
       });
     });
 };
@@ -238,73 +239,119 @@ exports.updateUserImage = (req, res) => {
  */
 exports.deleteUser = (req, res) => {
   const id = req.params.id;
+  let publication;
+  let user;
+  let userAuth;
+  // Find user in the database
   db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-    .then((user) => {
-      if (user.idUsers === id || user.role == 1) {
-        db.comment.destroy({ where: { usersId: id } }).then(() => {
-          db.user_liked.destroy({ where: { usersId: id } }).then(() => {
-            db.user_disliked.destroy({ where: { usersId: id } }).then(() => {
-              db.publication
-                .findOne({ where: { usersId: id } })
-                .then((publication) => {
-                  db.comment
-                    .destroy({
-                      where: { publicationsId: publication.idPublications },
-                    })
-                    .then(() => {
-                      db.user_liked
-                        .destroy({
-                          where: {
-                            publicationsId: publication.idPublications,
-                          },
-                        })
-                        .then(() => {
-                          db.user_disliked
-                            .destroy({
-                              where: {
-                                publicationsId: publication.idPublications,
-                              },
-                            })
-                            .then(() => {
-                              const filename = publication.imagesUrl.split(
-                                "/images/"
-                              )[1];
-                              fs.unlink(`images/${filename}`, (err) => {
-                                if (err) {
-                                  return console.log(err);
-                                } else {
-                                  console.log("image supprimée !");
-                                }
-                              });
-                              publication.destroy().then(() => {
-                                db.user
-                                  .destroy({ where: { idUsers: id } })
-                                  .then(() => {
-                                    res
-                                      .status(200)
-                                      .send({ message: "User supprimé !" });
-                                  })
-                                  .catch((err) => {
-                                    res.status(500).send({
-                                      message: err.message,
-                                    });
-                                  });
-                              });
-                            });
-                        });
-                    });
-                });
-            });
+    .then((userFindAuth) => {
+      userAuth = userFindAuth;
+      return db.user.findOne({ where: { idUsers: id } }).then((userFind) => {
+        user = userFind;
+        // Check identity
+        if (userAuth.idUsers === id || userAuth.role == 1) {
+          return db.comment.destroy({ where: { usersId: id } });
+        } else {
+          return res.status(403).send({ message: "Condition non respectée " });
+        }
+      });
+    })
+    // Destroy liked of user
+    .then(() => {
+      return db.user_liked.destroy({ where: { usersId: id } });
+    })
+    // Destroy disliked of user
+    .then(() => {
+      return db.user_disliked.destroy({ where: { usersId: id } });
+    })
+    // Find publication of the user
+    .then(() => {
+      return db.publication.findOne({ where: { usersId: id } });
+    })
+    .then((publicationFind) => {
+      // Check presence publications of the user
+      publication = publicationFind;
+      // If false delete user
+      if (!publication) {
+        if (user.idUsers != id) {
+          res.status(404).send({ message: "User non trouvé !" });
+        }
+        // Delete img for modify him
+        if (user.image != "http://localhost:3000/images/avatarDefault.jpg") {
+          const filename = user.image.split("/images/")[1];
+          fs.unlink(`app/images/${filename}`, (err) => {
+            if (err) {
+              return console.log(err);
+            } else {
+              console.log("image supprimée !");
+            }
           });
+        }
+        db.user.destroy({ where: { idUsers: id } });
+        return res.status(200).send({ message: "User supprimé !" });
+      }
+      // Destroy comments of the user publications
+      return db.comment.destroy({
+        where: { publicationsId: publication.idPublications },
+      });
+    })
+    .then(() => {
+      // Destroy liked of the user publications
+      return db.user_liked.destroy({
+        where: {
+          publicationsId: publication.idPublications,
+        },
+      });
+    })
+    // Destroy disliked of the user publications
+    .then(() => {
+      return db.user_disliked.destroy({
+        where: {
+          publicationsId: publication.idPublications,
+        },
+      });
+    })
+    // Destroy images of the user publications
+    .then(() => {
+      // Delete image if present
+      const filename = publication.imagesUrl.split("/images/")[1];
+      fs.unlink(`app/images/${filename}`, (err) => {
+        if (err) {
+          return console.log(err);
+        } else {
+          console.log("image supprimée !");
+        }
+      });
+      // Destroy publications of the user
+      return publication.destroy();
+    })
+    // Destroy user
+    .then(() => {
+      // Delete img for modify him
+      if (user.image != "http://localhost:3000/images/avatarDefault.jpg") {
+        const filename = user.image.split("/images/")[1];
+        fs.unlink(`app/images/${filename}`, (err) => {
+          if (err) {
+            return console.log(err);
+          } else {
+            console.log("image supprimée !");
+          }
         });
+      }
+      return db.user.destroy({ where: { idUsers: id } });
+    })
+    // Return responses of server
+    .then((userDestroy) => {
+      if (!userDestroy) {
+        return res.status(404).send({ message: "User id:" + id });
       } else {
-        return res.status(403).send({ message: "Condition non respectée " });
+        return res.status(200).send({ message: "User supprimé !" });
       }
     })
     .catch((err) => {
-      res.status(401).send({
-        message: err.message || "Utilisateur non trouvé ",
+      res.status(500).send({
+        message: err.message,
       });
     });
 };

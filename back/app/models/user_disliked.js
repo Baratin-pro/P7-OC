@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports = (sequelize, Sequelize) => {
   const UserDisliked = sequelize.define(
     "user_disliked",

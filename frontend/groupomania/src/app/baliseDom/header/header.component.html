@@ -1,6 +1,26 @@
- <header class="topbar">
- <mat-toolbar  color = "primary">
+ <header >
+ <mat-toolbar  color = "primary" class="topbar">
+   <div class="topbar_containerImg">
     <img class="topbar_img"  src="../assets/images/icon/icon-left-font-monochrome-white.png" alt="{{title}}">
+   </div>
+    <nav class="topbar_nav">
+      <a mat-icon-button class="topbar_nav_link" routerLink="accueil" aria-label="lien pour se diriger vers l'accueil">
+        <mat-icon class="topbar_nav_link_icon">home</mat-icon>
+        <span class="topbar_nav_span">Accueil</span> 
+      </a>
+      <a mat-icon-button class="topbar_nav_link" routerLink="m.users" aria-label="lien pour se diriger vers la liste des membres">
+        <mat-icon class="topbar_nav_link_icon">group</mat-icon>
+        <span class="topbar_nav_span">Membre</span> 
+      </a>
+      <a mat-icon-button class="topbar_nav_link" routerLink="m.profile" aria-label="lien pour se diriger vers le profile">
+         <mat-icon class="topbar_nav_link_icon">face</mat-icon>
+        <span class="topbar_nav_span">Vous</span> 
+      </a>
+      <a mat-icon-button class="topbar_nav_link" routerLink="auth/login" aria-label="button pour se déconnecter">
+        <mat-icon class="topbar_nav_link_icon">power_settings_new</mat-icon>
+        <span class="topbar_nav_span topbar_nav_span--last">Se déconnecter</span> 
+      </a>
+    </nav>
   </mat-toolbar>
 </header>
 

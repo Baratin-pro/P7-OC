@@ -14,10 +14,10 @@
           <mat-error *ngIf="this.loginForm.controls.emails.hasError('required')">
             L'adresse email est <strong> requis </strong>
           </mat-error>
-</mat-form-field>
+  </mat-form-field>
 
 <!-------------------------Password-------------------------------------------> 
-<mat-form-field appearance="outline">
+  <mat-form-field appearance="outline">
   <mat-label>Mot de passe</mat-label>
   <input  matInput 
           [type]="hide ?'text' : 'password' "  
@@ -38,12 +38,17 @@
             [attr.aria-pressed]="hide">
             {{hide ? 'visibility_off' : 'visibility'}}
   </mat-icon>
-</mat-form-field>
-<button class="form_btnSubmit"
-        mat-raised-button 
-        color="primary" 
-        [disabled]="loginForm.invalid" 
-        (click)="onSumitForm()">SE CONNECTER
-</button>
-<p class="text-danger" *ngIf="errorMsg">{{ errorMsg }}</p>
+  </mat-form-field>
+  <button class="form_btnSubmit"
+          mat-raised-button 
+          color="primary" 
+          [disabled]="loginForm.invalid" 
+          (click)="onSumitForm()">SE CONNECTER
+  </button>
+  <p class="text-danger" *ngIf="errorMsg">{{ errorMsg }}</p>
 </form>
+<a        class="btnSignup"
+          routerLink="/auth/signup"
+          mat-raised-button 
+          color="primary">SE DIRIGER VERS L'INSCRIPTION
+</a>

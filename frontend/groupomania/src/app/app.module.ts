@@ -26,29 +26,32 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import {MatInputModule} from '@angular/material/input';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
+import { MatBadgeModule } from '@angular/material/badge';
 // Form
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // HtppClient
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './interceptors/auth-interceptor';
 
 
 
 @NgModule({
   declarations: [
     AppComponent,
-      SignupComponent,
-      LoginComponent,
-      HeaderComponent,
-      FooterComponent,
-      FourOhFourComponent,
-      PublicationDetailComponent,
-      PublicationEditComponent,
-      PublicationListComponent,
-      UserDetailComponent,
-      UserListComponent,
-      UserProfileComponent
-   ],
+    SignupComponent,
+    LoginComponent,
+    HeaderComponent,
+    FooterComponent,
+    FourOhFourComponent,
+    PublicationDetailComponent,
+    PublicationEditComponent,
+    PublicationListComponent,
+    UserDetailComponent,
+    UserListComponent,
+    UserProfileComponent
+  ],
   imports: [
     BrowserModule,
     MatSliderModule,
@@ -61,12 +64,14 @@ import { HttpClientModule } from '@angular/common/http';
     MatSidenavModule,
     MatIconModule,
     MatListModule,
+    MatCardModule,
+    MatBadgeModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
     RoutesRoutes
   ],
-  providers: [],
+  providers: [{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,3 +1,4 @@
+import { NgModule } from '@angular/core';
 import { LoginComponent } from './auth/login/login.component';
 import { SignupComponent } from './auth/signup/signup.component';
 import { UserProfileComponent } from './user/user-profile/user-profile.component';
@@ -8,23 +9,29 @@ import { PublicationEditComponent } from './publication/publication-edit/publica
 import { PublicationDetailComponent } from './publication/publication-detail/publication-detail.component';
 import { FourOhFourComponent } from './four-oh-four/four-oh-four.component';
 import { Routes, RouterModule } from '@angular/router';
+import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
-   // Auth
-   { path: 'auth/signup', component: SignupComponent },
-   { path: '', component: SignupComponent },
-   { path: 'auth/login', component: LoginComponent },
+  // Auth
+  { path: 'auth/signup', component: SignupComponent },
+  { path: '', component: LoginComponent },
+  { path: 'auth/login', component: LoginComponent },
   // Publication
-  { path: 'editPublication', component: PublicationEditComponent, },
-  { path: 'publication/:id', component: PublicationDetailComponent },
-  { path: 'accueil', component: PublicationListComponent },
+  { path: 'editPublication', component: PublicationEditComponent, canActivate: [AuthGuard] },
+  { path: 'publication/:id', component: PublicationDetailComponent, canActivate: [AuthGuard] },
+  { path: 'accueil', component: PublicationListComponent, canActivate: [AuthGuard] },
   // User
-  { path: 'm.users', component: UserListComponent },
-  { path: 'user/:id', component: UserDetailComponent },
-  { path: 'm.profile', component: UserProfileComponent },
+  { path: 'm.users', component: UserListComponent, canActivate: [AuthGuard] },
+  { path: 'user/:id', component: UserDetailComponent, canActivate: [AuthGuard] },
+  { path: 'm.profile', component: UserProfileComponent, canActivate: [AuthGuard] },
   // 404
   { path: 'not-found', component: FourOhFourComponent },
-  {path: '**', redirectTo: 'not-found' }
+  { path: '**', redirectTo: 'not-found' }
 ];
 
+NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
+  providers: [AuthGuard]
+})
 export const RoutesRoutes = RouterModule.forRoot(routes);

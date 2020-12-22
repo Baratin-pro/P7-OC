@@ -4,7 +4,6 @@ import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms'
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { BehaviorSubject } from 'rxjs';
-
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -15,7 +14,7 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   loading: boolean;
   errMsg: string;
-  
+
   // Identification
 
   isAuth$ = new BehaviorSubject<boolean>(false);
@@ -23,24 +22,24 @@ export class LoginComponent implements OnInit {
   private userId: string;
 
   constructor(private formBuilder: FormBuilder,
-              private auth: AuthService,
-              private router: Router) {}
+    private auth: AuthService,
+    private router: Router) { }
 
   ngOnInit(): void {
     this.onLoginForm();
   }
 
-  onLoginForm(): any{
+  onLoginForm(): any {
     this.loginForm = this.formBuilder.group({
-      emails: new FormControl (null, 
-              [Validators.required, 
-              Validators.email]),
-      passwords: new FormControl (null, 
-                  [Validators.required,
-                  Validators.pattern('(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z]).{8,100}')])
+      emails: new FormControl(null,
+        [Validators.required,
+        Validators.email]),
+      passwords: new FormControl(null,
+        [Validators.required,
+        Validators.pattern('(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z]).{8,100}')])
     })
   }
-  onSumitForm(): any{
+  onSumitForm(): any {
     this.loading = true;
 
     // Recovery value
@@ -56,14 +55,7 @@ export class LoginComponent implements OnInit {
       userValue.emails,
     )
     this.auth.loginUser(userLogin.emails, userLogin.passwords)
-    .subscribe(
-      (response: {userId: string, token: string} ) => {
-      this.userId = response.userId;
-      this.authToken = response.token;
-      this.isAuth$.next(true);
-      this.loading = false;
-      this.router.navigate(['/accueil']);
-    }
-    )
+    this.loading = false;
+
   }
 }

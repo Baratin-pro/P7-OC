@@ -1,3 +1,5 @@
+"use strict";
+
 //Node.js ==> Express Framework
 const express = require("express");
 const app = express();

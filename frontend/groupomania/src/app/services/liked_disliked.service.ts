@@ -7,40 +7,41 @@ import { Injectable } from '@angular/core';
 })
 export class Liked_dislikedService {
 
-// Router API Liked
+  // Router API Liked
 
-  private routerLikedAdd: string = 'http://localhost:3000/api/liked/add';
-  private routerLikedDelete: string ='http://localhost:3000/api/liked/delete';
+  private urlLiked: string = 'http://localhost:3000/api/liked';
 
-// Router API Liked
+  // Router API Liked
 
-  private routerDislikedAdd: string ='http://localhost:3000/api/disliked/add';
-  private routerDislikedDelete: string = 'http://localhost:3000/api/disliked/delete';
-  
-// Constructor
+  private urlDislikedDelete: string = 'http://localhost:3000/api/disliked';
+
+  // Constructor
 
   constructor(private http: HttpClient) { }
 
-// Function : Create Liked
-// ---------------------------------------------
-// ---------------------------------------------
-// ---------------------------------------------
-  
-// Function : Delete Liked
- 
-  deleteLiked(): Observable<any> {
-    return this.http.delete(this.routerLikedDelete);
+  // Function : Create Liked
+
+  postLiked(id: string): Observable<any> {
+    return this.http.post(this.urlLiked + '/add', id)
+  };
+
+
+  // Function : Delete Liked
+
+  deleteLiked(idPublications): Observable<any> {
+    return this.http.delete(this.urlLiked + '/delete', idPublications);
   }
 
-// Function : Create Disliked
-// ---------------------------------------------
-// ---------------------------------------------
-// ---------------------------------------------
+  // Function : Create Disliked
 
-// Function : Detele Lisliked
+  postDisliked(idPublications: string): Observable<any> {
+    return this.http.post(this.urlDislikedDelete + '/add', idPublications)
+  };
 
-  deleteDisliked(): Observable<any> {
-    return this.http.delete(this.routerDislikedDelete);
+  // Function : Detele Lisliked
+
+  deleteDisliked(idPublications): Observable<any> {
+    return this.http.delete(this.urlDislikedDelete + '/delete', idPublications);
   }
 
 }

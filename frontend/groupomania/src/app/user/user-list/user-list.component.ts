@@ -34,21 +34,4 @@ export class UserListComponent implements OnInit {
         }
       )//erreur
     }
-
-  // The functions
-/*   onFetchUsers(): any {
-    this.loading = true;
-    this.userSub = this.authService.users$.subscribe(
-      (users) => {
-        this.users = users;
-        this.loading = false;
-        this.errMsg = null;
-      },
-      (err) => {
-        this.errMsg = JSON.stringify(err);
-        this.loading = false;
-      }
-    );
-    this.authService.fetchAllUser();
-  } */
 }

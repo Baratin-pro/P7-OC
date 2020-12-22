@@ -1,6 +1,8 @@
 export class UserLiked {
+    public id: string;
     constructor(
-        usersId: number,
-        publicationsId: number
-    ){}
+        id: string
+    ) {
+        this.id = id;
+    }
 }
