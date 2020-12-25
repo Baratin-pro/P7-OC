@@ -7,31 +7,31 @@ import { Injectable } from '@angular/core';
 })
 export class UserService {
 
-// Router API
+  // Router API
 
-  private routerUser: string = 'http://localhost:3000/api/user';
+  private urlUser: string = 'http://localhost:3000/api/user';
 
-// Constructor 
+  // Constructor 
 
-  constructor(private http: HttpClient ) { }
+  constructor(private http: HttpClient) { }
 
-// Function : Get all Users
+  // Function : Get all Users
   getAllUsers(): Observable<any> {
-    return this.http.get(this.routerUser)
+    return this.http.get(this.urlUser);
   }
 
-// Function : Get One User
-  getUser(id: string): Observable<any> {
-    return this.http.get(this.routerUser + '/' + id)
+  // Function : Get One User
+  getProfilUser(): Observable<any> {
+    return this.http.get(this.urlUser + '/profil');
   }
 
-// Function : Modify User
-// ---------------------------------------------
-// ---------------------------------------------
-// ---------------------------------------------  
+  // Function : Modify User
+  modifyUser(file): Observable<any> {
+    return this.http.put(this.urlUser + "/update", file)
+  }
 
-// Function : Delete User
+  // Function : Delete User
   deleteUser(id: string): Observable<any> {
-    return this.http.delete(this.routerUser + '/' + id)
+    return this.http.delete(this.urlUser + '/' + id);
   }
 }

@@ -65,7 +65,8 @@ export class PublicationListComponent implements OnInit {
     } else if (this.liked = false) {
       this.liked_dislikedService.deleteLiked(id).subscribe(
       )
-      return this.liked = true;
+      this.liked = true;
+      return this.liked;
     }
   }
 
@@ -74,11 +75,13 @@ export class PublicationListComponent implements OnInit {
     if (this.disliked = true) {
       this.liked_dislikedService.postDisliked(id).subscribe(
       )
-      return this.disliked = false;
+      this.disliked = false;
+      return this.disliked;
     } else if (this.disliked = false) {
       this.liked_dislikedService.deleteDisliked(id).subscribe(
       )
-      return this.disliked = true;
+      this.disliked = true;
+      return this.disliked;
     }
   }
 

@@ -28,8 +28,8 @@ exports.createPublication = (req, res) => {
         req.file.filename
       }`;
       const publication = {
-        titles: String(validator.escape(req.body.titles)),
-        descriptions: String(validator.escape(req.body.descriptions)),
+        titles: String(req.body.titles),
+        descriptions: String(req.body.descriptions),
         imagesUrl: image,
         publicationsDate: new Date(),
         usersId: user.idUsers,

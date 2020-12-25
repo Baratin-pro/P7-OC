@@ -247,16 +247,19 @@ exports.deleteUser = (req, res) => {
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
     .then((userFindAuth) => {
       userAuth = userFindAuth;
-      return db.user.findOne({ where: { idUsers: id } }).then((userFind) => {
-        user = userFind;
-        // Check identity
-        if (userAuth.idUsers === id || userAuth.role == 1) {
-          return db.comment.destroy({ where: { usersId: id } });
-        } else {
-          return res.status(403).send({ message: "Condition non respectée " });
-        }
-      });
+      // Check identity
+      if (userAuth.idUsers == id || userAuth.role == 1) {
+        return db.user.findOne({ where: { idUsers: id } });
+      } else {
+        return res.status(403).send({ message: "Condition non respectée " });
+      }
     })
+    .then((userFind) => {
+      user = userFind;
+
+      return db.comment.destroy({ where: { usersId: id } });
+    })
+
     // Destroy liked of user
     .then(() => {
       return db.user_liked.destroy({ where: { usersId: id } });

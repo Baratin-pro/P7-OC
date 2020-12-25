@@ -1,3 +1,4 @@
+import { UserService } from './../../services/user.service';
 import { AuthService } from './../../services/auth.service';
 import { User } from './../../models/User.model';
 import { Component, OnInit } from '@angular/core';
@@ -14,18 +15,37 @@ export class UserProfileComponent implements OnInit {
   userId: string;
   loading: boolean;
   errMsg: string;
+  profil: [];
+
   constructor(private auth: AuthService,
-              private route: ActivatedRoute,
-              private router: Router) { }
+    private userService: UserService,
+    private route: ActivatedRoute,
+    private router: Router) { }
 
   ngOnInit(): void {
-    this.onfetchUser();
+    this.getProfileUser()
+  }
+  getProfileUser(): void {
+    this.userService.getProfilUser().subscribe(
+      responseProfile => {
+        this.profil = responseProfile;
+        console.log('profile', this.profil)
+        this.loading = true;
+      }
+    )
   }
 
-  onfetchUser(): any {
-    /* this.userId = this.auth.
-    this.loading = true;
-    this.route.params */
-
+  deleteProfil(id: string): void {
+    this.userService.deleteUser(id).subscribe(
+      (response: { message: string }) => {
+        console.log(response.message);
+        this.loading = false;
+        this.router.navigate(['/auth/login']);
+      }
+    )
   }
+  modifyImgProfil(id: string): void {
+    this.router.navigate(['modify-profile', id])
+  }
+
 }

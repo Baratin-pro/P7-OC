@@ -7,37 +7,36 @@ import { Observable } from 'rxjs';
 })
 export class PublicationService {
 
-// Router API 
+  // Router API 
 
-  private routerPublicationCreate: string = 'http://localhost:3000/api/publication';
   private routerPublication: string = 'http://localhost:3000/api/publication';
 
-// Constructor
+  // Constructor
 
   constructor(private http: HttpClient) { }
 
-// Function : Create Publication
-// ---------------------------------------------
-// ---------------------------------------------
-// ---------------------------------------------
+  // Function : Create Publication
+  createPublication(publicationNew: object): Observable<any> {
+    return this.http.post(this.routerPublication + '/create', publicationNew);
+  }
 
-// Function : Get all Publications
+  // Function : Get all Publications
   getAllPublications(): Observable<any> {
-    return this.http.get(this.routerPublication)
+    return this.http.get(this.routerPublication);
   }
 
-// Function : Get One Publication
+  // Function : Get One Publication
   getOnePublication(id: string): Observable<any> {
-    return this.http.get(this.routerPublication + '/' + id)
+    return this.http.get(this.routerPublication + '/' + id);
   }
 
-// Function : Modify Publication
-// ---------------------------------------------
-// ---------------------------------------------
-// ---------------------------------------------
+  // Function : Modify Publication
+  // ---------------------------------------------
+  // ---------------------------------------------
+  // ---------------------------------------------
 
-// Function : Detele One Publication
+  // Function : Detele One Publication
   deletePublication(id: string): Observable<any> {
-    return this.http.delete(this.routerPublication + '/' + id)
-  }  
+    return this.http.delete(this.routerPublication + '/' + id);
+  }
 }

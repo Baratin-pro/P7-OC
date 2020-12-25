@@ -14,6 +14,8 @@ import { PublicationDetailComponent } from './publication/publication-detail/pub
 import { FourOhFourComponent } from './four-oh-four/four-oh-four.component';
 import { FooterComponent } from './baliseDom/footer/footer.component';
 import { HeaderComponent } from './baliseDom/header/header.component';
+import { UserProfilModifyComponent } from './user/user-profil-modify/user-profil-modify.component';
+
 // Service
 // Material
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -50,7 +52,8 @@ import { AuthInterceptor } from './interceptors/auth-interceptor';
     PublicationListComponent,
     UserDetailComponent,
     UserListComponent,
-    UserProfileComponent
+    UserProfileComponent,
+    UserProfilModifyComponent
   ],
   imports: [
     BrowserModule,

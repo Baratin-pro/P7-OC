@@ -6,6 +6,22 @@ const Op = db.Sequelize.Op;
 //Protect
 const validator = require("validator");
 const userDecodedTokenId = require("../middleware/userDecodedTokenId.js");
+
+const getPagination = (page, size) => {
+  const limit = size ? +size : 5;
+  const offset = page ? page * limit : 0;
+
+  return { limit, offset };
+};
+
+const getPagingData = (data, page, limit) => {
+  const { count: totalComments, rows: comments } = data;
+  const currentPage = page ? +page : 0;
+  const totalPages = Math.ceil(totalComments / limit);
+
+  return { totalComments, comments, totalPages, currentPage };
+};
+
 /*
  * ********* Function : Create Comment *********
  */
@@ -107,6 +123,32 @@ exports.getComment = (req, res) => {
         message:
           err.message ||
           "Une erreur s'est produit lors de la création du commentaire",
+      });
+    });
+};
+/*
+ * ********* Function : FindAll Comment *********
+ */
+exports.getAllComments = (req, res) => {
+  const publicationId = req.params.id;
+  const { page, size } = req.query;
+  const { limit, offset } = getPagination(page, size);
+  // Find all comments of publication from the database.
+  db.comment
+    .findAndCountAll({
+      where: { publicationsId: publicationId },
+      limit,
+      offset,
+    })
+    .then((commentFindAllCountAll) => {
+      const response = getPagingData(commentFindAllCountAll, page, limit);
+      res.status(200).send(response);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Une erreur est survenue lors de la récupération des données",
       });
     });
 };

@@ -10,6 +10,7 @@ import { PublicationDetailComponent } from './publication/publication-detail/pub
 import { FourOhFourComponent } from './four-oh-four/four-oh-four.component';
 import { Routes, RouterModule } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
+import { UserProfilModifyComponent } from './user/user-profil-modify/user-profil-modify.component';
 
 const routes: Routes = [
   // Auth
@@ -21,9 +22,10 @@ const routes: Routes = [
   { path: 'publication/:id', component: PublicationDetailComponent, canActivate: [AuthGuard] },
   { path: 'accueil', component: PublicationListComponent, canActivate: [AuthGuard] },
   // User
-  { path: 'm.users', component: UserListComponent, canActivate: [AuthGuard] },
+  { path: 'users', component: UserListComponent, canActivate: [AuthGuard] },
   { path: 'user/:id', component: UserDetailComponent, canActivate: [AuthGuard] },
-  { path: 'm.profile', component: UserProfileComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: UserProfileComponent, canActivate: [AuthGuard] },
+  { path: 'modify-profile/:id', component: UserProfilModifyComponent, canActivate: [AuthGuard] },
   // 404
   { path: 'not-found', component: FourOhFourComponent },
   { path: '**', redirectTo: 'not-found' }

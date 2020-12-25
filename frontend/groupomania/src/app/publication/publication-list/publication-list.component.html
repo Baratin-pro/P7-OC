@@ -1,5 +1,10 @@
 <section>
-  <h2 class="publicationList_title">Liste des publications de Groupomania</h2>
+ 
+  <h2 class="publicationList_title">Liste des publications de Groupomania</h2> 
+  <a mat-icon-button class="topbar_nav_link" routerLink="../editPublication" aria-label="button création d'une publication">
+    <mat-icon class="topbar_nav_link_icon">post_add</mat-icon>
+    <span class="topbar_nav_span topbar_nav_span--last">Créer publication</span> 
+  </a>
   <mat-card class="publicationList_card"  *ngFor="let publication of publications">
     <mat-card-header class="publicationList_card_header" (click)="onClickPublication(publication.idPublications)">
       <div mat-card-avatar class="publicationList_card_header_img" style="background-image: url({{publication.user.image}});"></div>
@@ -64,5 +69,7 @@
       </form>
     </mat-card-actions>
   </mat-card>
+
+  
 </section>
 

@@ -1,0 +1,19 @@
+<mat-spinner *ngIf="loading"></mat-spinner>
+<form [formGroup]="profilForm" *ngIf="!loading">
+    <mat-card class="profilForm_card">
+        <!-------------------------Image------------------------------------------->
+        <div appearance="outline" class="profilForm_card_container">
+            <label>Image du profil : </label>
+            <input type="file" class="form_control" accept="image/*" #imageInput (change)="uploadFile($event)" id="image" />
+            <img mat-card-image [src]="imagePreview" *ngIf="imagePreview">
+        </div>
+        <!-------------------------Button------------------------------------------->
+        <mat-card-actions><button class="form_btnSubmit" mat-raised-button color="primary"
+            [disabled]="profilForm.invalid" (click)="onSumitForm()">
+            ENVOYEZ
+        </button>
+        <p class="text-danger" *ngIf="errorMsg">{{ errorMsg }}</p>
+    </mat-card-actions>
+    </mat-card>
+
+</form>
