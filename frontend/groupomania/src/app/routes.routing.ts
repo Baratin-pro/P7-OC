@@ -19,6 +19,7 @@ const routes: Routes = [
   { path: 'auth/login', component: LoginComponent },
   // Publication
   { path: 'editPublication', component: PublicationEditComponent, canActivate: [AuthGuard] },
+  { path: 'modify-publication/:id', component: PublicationEditComponent, canActivate: [AuthGuard] },
   { path: 'publication/:id', component: PublicationDetailComponent, canActivate: [AuthGuard] },
   { path: 'accueil', component: PublicationListComponent, canActivate: [AuthGuard] },
   // User

@@ -8,12 +8,11 @@
             <img mat-card-image [src]="imagePreview" *ngIf="imagePreview">
         </div>
         <!-------------------------Button------------------------------------------->
-        <mat-card-actions><button class="form_btnSubmit" mat-raised-button color="primary"
+        <mat-card-actions><button class="form_btnSubmit" mat-dialog-close mat-raised-button color="primary"
             [disabled]="profilForm.invalid" (click)="onSumitForm()">
             ENVOYEZ
         </button>
         <p class="text-danger" *ngIf="errorMsg">{{ errorMsg }}</p>
     </mat-card-actions>
     </mat-card>
-
 </form>

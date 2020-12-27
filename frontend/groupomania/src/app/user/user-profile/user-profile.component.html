@@ -2,7 +2,7 @@
   <img mat-card-image class="profile_img" src="{{profil.image}}" alt="{{profil.firstnames}} {{profil.names}}">
   <h2 class="profile_title">{{profil.firstnames}} <span class="profile_names">{{profil.names}}</span></h2>
   <mat-card-actions class="profile_btn">
-    <button (click)="modifyImgProfil(profil.idUsers)" button mat-stroked-button> Modifier l'image du profil </button>
+    <button (click)="modifyImgProfil()" button mat-stroked-button> Modifier l'image du profil </button>
       <button (click)="deleteProfil(profil.idUsers)"  button mat-stroked-button> Supprimer le profil </button>
   </mat-card-actions>
   <mat-card-content  class="profile_content">

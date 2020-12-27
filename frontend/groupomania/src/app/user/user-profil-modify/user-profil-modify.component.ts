@@ -1,4 +1,4 @@
-import { UserProfil } from './../../models/UserProfil';
+import { UserProfil } from '../../models/UserProfil..model';
 import { UserService } from './../../services/user.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
@@ -47,7 +47,6 @@ export class UserProfilModifyComponent implements OnInit {
       (response: { message: string }) => {
         console.log(response.message);
         this.loading = false;
-        this.router.navigate(['/profile']);
       }
     )
   }

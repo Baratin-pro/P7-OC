@@ -5,6 +5,8 @@ const db = require("../models");
 const Op = db.Sequelize.Op;
 //Protect
 const userDecodedTokenId = require("../middleware/userDecodedTokenId.js");
+const { sequelize } = require("../models");
+const { QueryTypes } = require("sequelize");
 let user;
 let publication;
 let countDisliked;

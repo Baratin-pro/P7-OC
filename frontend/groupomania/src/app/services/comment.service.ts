@@ -8,37 +8,36 @@ import { Observable } from 'rxjs';
 })
 export class CommentService {
 
-// Router API
+  // Router API
 
-  private routerCommentCreate: string = 'http://localhost:3000/api/comment/create';
-  private routerComment: string = 'http://localhost:3000/api/comment';
+  private urlComment: string = 'http://localhost:3000/api/comment';
 
-// Constructor
+  // Constructor
 
-constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { }
 
-// Function : Create Comment
-// ---------------------------------------------
-// ---------------------------------------------
-// ---------------------------------------------
+  // Function : Create Comment
+  createComment(commentNew: object): Observable<any> {
+    return this.http.post(this.urlComment + "/create", commentNew);
+  }
 
-// Function : Get all Comments
+  // Function : Get all Comments
   getAllComments(): Observable<any> {
-    return this.http.get(this.routerComment)
+    return this.http.get(this.urlComment)
   }
 
-// Function : Get One Comment
+  // Function : Get One Comment
   getOneComment(id: string): Observable<any> {
-    return this.http.get(this.routerComment + '/' + id)
+    return this.http.get(this.urlComment + '/' + id)
   }
 
-// Function : Modify Comment
-// ---------------------------------------------
-// ---------------------------------------------
-// ---------------------------------------------
+  // Function : Modify Comment
+  // ---------------------------------------------
+  // ---------------------------------------------
+  // ---------------------------------------------
 
-// Function : Detele One Comment
+  // Function : Detele One Comment
   deletePublication(id: string): Observable<any> {
-    return this.http.delete(this.routerComment + '/' + id)
-  }  
+    return this.http.delete(this.urlComment + '/' + id)
+  }
 }

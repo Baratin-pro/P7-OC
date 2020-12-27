@@ -34,7 +34,7 @@ export class PublicationEditComponent implements OnInit {
           this.publicationService.getOnePublication(params.id).subscribe(
             (publication: Publication) => {
               this.publication = publication;
-              this.initModifyForm();
+              this.initModifyForm(publication);
               this.loading = false;
             }
           )
@@ -60,8 +60,10 @@ export class PublicationEditComponent implements OnInit {
     };
 
     const newPublication = new Publication(
+      null,
       newValue.titles,
       newValue.descriptions,
+      null
     );
     this.formData.append('image', this.publicationForm.get('image').value);
     this.formData.append('titles', newPublication.titles);
@@ -76,9 +78,26 @@ export class PublicationEditComponent implements OnInit {
           this.router.navigate(['/accueil']);
         }
       )
+    } else if (this.mode === "modify") {
+      this.publicationService.modifyPublication(this.publication.idPublications, this.formData).subscribe(
+        (response: { message: string }) => {
+          console.log(response.message);
+          this.loading = false;
+          this.router.navigate(['/accueil']);
+        }
+      )
     }
   }
-  initModifyForm(): void { }
+  initModifyForm(publication: Publication): void {
+    this.publicationForm = this.formBuilder.group({
+      titles: new FormControl(this.publication.titles, [Validators.required]),
+      image: [this.publication.imagesUrl, [Validators.required]],
+      descriptions: new FormControl(this.publication.descriptions, [Validators.required])
+    });
+    this.imagePreview = this.publication.imagesUrl;
+    console.log(this.imagePreview)
+  }
+
   uploadFile(event: Event): void {
     const file = (event.target as HTMLInputElement).files[0];
     this.publicationForm.get('image').setValue(file);
@@ -88,7 +107,5 @@ export class PublicationEditComponent implements OnInit {
       this.imagePreview = reader.result as string;
     };
     reader.readAsDataURL(file);
-
   }
-
 }

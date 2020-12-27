@@ -31,6 +31,8 @@ import { MatListModule } from '@angular/material/list';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 // Form
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // HtppClient
@@ -69,6 +71,8 @@ import { AuthInterceptor } from './interceptors/auth-interceptor';
     MatListModule,
     MatCardModule,
     MatBadgeModule,
+    MatDialogModule,
+    MatMenuModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,

@@ -78,7 +78,7 @@ exports.getOnePublication = (req, res) => {
           {
             model: db.user,
             as: "user",
-            attributes: ["names", "firstnames", "image"],
+            attributes: ["names", "firstnames", "image", "idUsers"],
           },
         ],
       });
@@ -153,15 +153,14 @@ exports.getAllPublication = (req, res) => {
  * ********* Function : Update Publication *********
  */
 exports.updatePublication = (req, res) => {
-  // Recovery request
-  if (!req.body.title || !req.body.description) {
-    return res.status(400).send({ message: "Paramètre absent" });
-  }
+  const image = `${req.protocol}://${req.get("host")}/images/${
+    req.file.filename
+  }`;
   const publicationReq = {
     idPublication: req.params.id,
-    title: String(validator.escape(req.body.title)),
-    description: String(validator.escape(req.body.description)),
-    image: `${req.protocol}://${req.get("host")}/images/${req.file.filename}`,
+    title: String(validator.escape(req.body.titles)),
+    description: String(validator.escape(req.body.descriptions)),
+    imagesUrl: image,
   };
   // Find user in the database
   db.user
@@ -198,7 +197,7 @@ exports.updatePublication = (req, res) => {
         return publication.update({
           titles: publicationReq.title,
           descriptions: publicationReq.description,
-          imagesUrl: publicationReq.image,
+          imagesUrl: publicationReq.imagesUrl,
         });
       }
     })

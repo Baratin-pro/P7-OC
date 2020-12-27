@@ -45,6 +45,9 @@ export class AuthService {
   getToken() {
     return this.authToken;
   }
+  getUserId() {
+    return this.userId;
+  }
 
 
   /* // Function: Logout 
