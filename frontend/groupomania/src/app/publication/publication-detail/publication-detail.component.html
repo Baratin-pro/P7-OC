@@ -70,7 +70,7 @@
           <mat-hint class="publication_card_form_lineBottom" align= "start">{{message.value.length}} / 1200 </mat-hint>
           <mat-hint class="publication_card_form_lineBottom publication_card_form_lineBottom--icon" 
                     align= "end">
-            <button mat-button>
+            <button mat-button [disabled]="publicationForm.invalid" (click)="onSumitForm(publication.idPublications)">
               <mat-icon>send</mat-icon>
             </button>
           </mat-hint>

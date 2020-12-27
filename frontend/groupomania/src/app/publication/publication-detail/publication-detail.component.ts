@@ -1,7 +1,9 @@
+import { CommentService } from './../../services/comment.service';
 import { AuthService } from './../../services/auth.service';
 import { PublicationService } from './../../services/publication.service';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-publication-detail',
@@ -18,8 +20,14 @@ export class PublicationDetailComponent implements OnInit {
   idPublications: string;
   userId: string;
 
-  constructor(private publicationsService: PublicationService, private route: ActivatedRoute,
-    private router: Router, private authService: AuthService) { }
+  commentForm: FormGroup;
+
+  constructor(private publicationsService: PublicationService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private authService: AuthService,
+    private formBuilder: FormBuilder,
+    private commentService: CommentService) { }
 
   ngOnInit(): void {
     this.loading = true;
@@ -29,6 +37,7 @@ export class PublicationDetailComponent implements OnInit {
           .subscribe((publication) => {
             this.publication = publication;
             console.log('publication:', this.publication)
+            this.onInitComment();
             this.loading = false;
           }
           )
@@ -57,5 +66,25 @@ export class PublicationDetailComponent implements OnInit {
     } else {
       return caractereLength;
     }
+  }
+
+  // ------------------------ Comment --------------------------
+
+  // Check value
+  onInitComment(): any {
+    this.commentForm = this.formBuilder.group({
+      comments: new FormGroup(null, [Validators.required])
+    });
+  }
+  // While edit publication
+  onSumitForm(idPublication: string): void {
+    this.loading = true;
+    const newComments = this.commentForm.get('comments').value;
+    this.commentService.createComment(idPublication, newComments).subscribe(
+      (response: { message: string }) => {
+        console.log(response.message);
+        this.loading = false;
+        this.router.navigate(['/accueil']);
+      })
   }
 }

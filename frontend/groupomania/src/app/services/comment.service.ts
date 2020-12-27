@@ -17,8 +17,8 @@ export class CommentService {
   constructor(private http: HttpClient) { }
 
   // Function : Create Comment
-  createComment(commentNew: object): Observable<any> {
-    return this.http.post(this.urlComment + "/create", commentNew);
+  createComment(idPublication: string, commentNew: object): Observable<any> {
+    return this.http.post(this.urlComment + "/create", idPublication + commentNew);
   }
 
   // Function : Get all Comments
