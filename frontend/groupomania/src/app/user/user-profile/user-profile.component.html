@@ -13,8 +13,8 @@
     <div class="profile_content_container">
     <a class="profile_link" href="mailto: {{profil.emails}}">{{profil.emails}}</a>
     <p class="gray">E-mail</p>
-
     </div>
   </mat-card-content>
-
 </mat-card>
+<!------------------------- Message d'erreur ------------------------->
+<div class="invalid" *ngIf="msgErr"><p>{{msgErr}}</p></div>

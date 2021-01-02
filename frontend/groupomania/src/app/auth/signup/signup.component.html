@@ -1,7 +1,7 @@
 <mat-spinner *ngIf="loading"></mat-spinner>
 <form [formGroup]="signupForm" *ngIf="!loading" class="form">
 
-<!-------------------------Lastname-------------------------------------------> 
+<!------------------------- Lastname -------------------------> 
   <mat-form-field appearance="outline">
     <mat-label>Nom de famille</mat-label>
     <input  type="text" 
@@ -17,7 +17,7 @@
             </mat-error>
   </mat-form-field>
 
-<!-------------------------Firstname-------------------------------------------> 
+<!------------------------- Firstname -------------------------> 
   <mat-form-field appearance="outline">
     <mat-label>Prénom</mat-label>
     <input  type="text" 
@@ -33,7 +33,7 @@
             </mat-error>
   </mat-form-field>
 
-<!-------------------------EMAIL-------------------------------------------> 
+<!------------------------- EMAIL -------------------------> 
   <mat-form-field appearance="outline">
     <mat-label>Email</mat-label>
     <input  type="email" 
@@ -49,7 +49,7 @@
             </mat-error>
   </mat-form-field>
 
-<!-------------------------Password-------------------------------------------> 
+<!------------------------- Password -------------------------> 
   <mat-form-field appearance="outline">
     <mat-label>Mot de passe</mat-label>
     <input  matInput 
@@ -72,6 +72,7 @@
               {{hide ? 'visibility_off' : 'visibility'}}
     </mat-icon>
   </mat-form-field>
+  <!------------------------- Button Confirmation ------------------------->
   <button class="form_btnSubmit"
           mat-raised-button 
           color="primary" 
@@ -80,3 +81,5 @@
   </button>
   <p class="text-danger" *ngIf="errorMsg">{{ errorMsg }}</p>
 </form>
+ <!------------------------- Message d'erreur ------------------------->
+ <div class="invalid" *ngIf="msgErr"><p>{{msgErr}}</p></div>

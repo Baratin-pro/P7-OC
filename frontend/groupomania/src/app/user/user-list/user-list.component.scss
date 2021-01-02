@@ -11,7 +11,12 @@
     background-color: rgba(204, 204, 204, 0.041);
     box-shadow: 1px 8px 10px 7px rgba(88, 88, 88, 0.438);
     border-radius: 20px;
+    display: flex;
+    justify-content: space-around;
     &_container {
+      &_img {
+        background-size: cover;
+      }
       &_title {
         font-size: 1.2em;
       }

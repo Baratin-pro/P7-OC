@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -17,27 +16,32 @@ export class CommentService {
   constructor(private http: HttpClient) { }
 
   // Function : Create Comment
-  createComment(idPublication: string, commentNew: object): Observable<any> {
-    return this.http.post(this.urlComment + "/create", idPublication + commentNew);
+
+  createComment(commentNew: object): Observable<any> {
+    return this.http.post(this.urlComment + "/create", commentNew);
   }
 
   // Function : Get all Comments
-  getAllComments(): Observable<any> {
-    return this.http.get(this.urlComment)
+
+  getAllComments(idPublication: string): Observable<any> {
+    return this.http.get(this.urlComment + "/publication/" + idPublication)
   }
 
   // Function : Get One Comment
+
   getOneComment(id: string): Observable<any> {
     return this.http.get(this.urlComment + '/' + id)
   }
 
   // Function : Modify Comment
-  // ---------------------------------------------
-  // ---------------------------------------------
-  // ---------------------------------------------
+
+  modifyComment(idComment, commentDescription: object): Observable<any> {
+    return this.http.put(this.urlComment + "/" + idComment, commentDescription)
+  }
 
   // Function : Detele One Comment
-  deletePublication(id: string): Observable<any> {
+
+  deleteComment(id: string): Observable<any> {
     return this.http.delete(this.urlComment + '/' + id)
   }
 }

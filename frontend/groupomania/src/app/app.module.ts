@@ -7,16 +7,13 @@ import { LoginComponent } from './auth/login/login.component';
 import { SignupComponent } from './auth/signup/signup.component';
 import { UserProfileComponent } from './user/user-profile/user-profile.component';
 import { UserListComponent } from './user/user-list/user-list.component';
-import { UserDetailComponent } from './user/user-detail/user-detail.component';
+import { PublicationCommentModifyComponent } from './publication/publication-comment-modify/publication-comment-modify.component';
 import { PublicationListComponent } from './publication/publication-list/publication-list.component';
 import { PublicationEditComponent } from './publication/publication-edit/publication-edit.component';
 import { PublicationDetailComponent } from './publication/publication-detail/publication-detail.component';
 import { FourOhFourComponent } from './four-oh-four/four-oh-four.component';
-import { FooterComponent } from './baliseDom/footer/footer.component';
 import { HeaderComponent } from './baliseDom/header/header.component';
 import { UserProfilModifyComponent } from './user/user-profil-modify/user-profil-modify.component';
-
-// Service
 // Material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BrowserModule } from '@angular/platform-browser';
@@ -47,12 +44,11 @@ import { AuthInterceptor } from './interceptors/auth-interceptor';
     SignupComponent,
     LoginComponent,
     HeaderComponent,
-    FooterComponent,
     FourOhFourComponent,
+    PublicationCommentModifyComponent,
     PublicationDetailComponent,
     PublicationEditComponent,
     PublicationListComponent,
-    UserDetailComponent,
     UserListComponent,
     UserProfileComponent,
     UserProfilModifyComponent

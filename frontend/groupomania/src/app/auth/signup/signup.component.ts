@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { User } from 'src/app/models/User.model';
 import { BehaviorSubject } from 'rxjs';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-signup',
@@ -21,16 +22,19 @@ export class SignupComponent implements OnInit {
   isAuth$ = new BehaviorSubject<boolean>(false);
   private authToken: string;
   private userId: string;
+  msgErr: string;
 
   constructor(private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router) { }
+    private router: Router,
+    private statusService: StatusService) { }
 
   ngOnInit(): void {
+    this.statusService.setstatus('Se connecter');
     this.onSignupForm();
   }
 
-  // Check value
+  // Vérification des inputs dès le démarrage de la page
 
   onSignupForm(): any {
     this.signupForm = this.formBuilder.group({
@@ -49,13 +53,12 @@ export class SignupComponent implements OnInit {
         Validators.pattern('^[a-zA-Z]+[^&><"\'=/!£$]+(([-][a-zA-Z ])?[a-zA-Z]*)*$')])
     });
   }
-  // While signup
+  // Fonction liée au bouton de confirmation d'envoies des données saisis par l'utilisateur
 
   onSumitForm(): void {
-
     this.loading = true;
 
-    // Recovery value
+    // Récupération des valeurs 
 
     const userValue = {
       emails: this.signupForm.get('emails').value,
@@ -64,7 +67,7 @@ export class SignupComponent implements OnInit {
       names: this.signupForm.get('names').value
     }
 
-    // Recovery model User
+    // Préparation de la requête en transformant les données saisis de l'utilisateur
 
     const newUser = new User(
       userValue.passwords,
@@ -73,19 +76,25 @@ export class SignupComponent implements OnInit {
       userValue.emails
     )
 
-    // Function: create User then login him
-
+    /* 
+    *  Envoie de la requête au serveur pour la création de l'utilisateur via la route API signup
+    *  Puis connecte directement ce dernier au serveur et l'envoie sur la page d'accueil 
+    */
     this.authService.createUser(newUser)
       .subscribe(
-        (response: { message: string }) => {
-          console.log(response.message);
+        () => {
           this.authService.loginUser(newUser.emails, newUser.passwords)
+            .subscribe(() => {
+              this.isAuth$.next(true);
+              this.router.navigate(['/accueil']);
+            },
+              error => this.msgErr = error.error.message
+            )
           this.loading = false;
-        }
+        },
+        error => this.msgErr = error.error.message
       )
   }
-
-
 }
 
 

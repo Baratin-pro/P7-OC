@@ -1,9 +1,11 @@
+import { StatusService } from './../../services/status.service';
 import { User } from 'src/app/models/User.model';
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { BehaviorSubject } from 'rxjs';
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -13,7 +15,7 @@ export class LoginComponent implements OnInit {
 
   loginForm: FormGroup;
   loading: boolean;
-  errMsg: string;
+  msgErr: string;
 
   // Identification
 
@@ -22,12 +24,16 @@ export class LoginComponent implements OnInit {
   private userId: string;
 
   constructor(private formBuilder: FormBuilder,
-    private auth: AuthService,
-    private router: Router) { }
+    private authService: AuthService,
+    private router: Router,
+    private statusService: StatusService) { }
 
   ngOnInit(): void {
+    this.statusService.setstatus('Se connecter');
     this.onLoginForm();
   }
+
+  // Vérification des inputs dès le démarrage de la page
 
   onLoginForm(): any {
     this.loginForm = this.formBuilder.group({
@@ -39,14 +45,20 @@ export class LoginComponent implements OnInit {
         Validators.pattern('(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z]).{8,100}')])
     })
   }
+
+  // Fonction liée au bouton de confirmation d'envoies des données saisis par l'utilisateur
+
   onSumitForm(): any {
     this.loading = true;
 
-    // Recovery value
+    // Récupération des valeurs 
+
     const userValue = {
       emails: this.loginForm.get('emails').value,
       passwords: this.loginForm.get('passwords').value,
     }
+
+    // Préparation de la requête en transformant les données saisis de l'utilisateur 
 
     const userLogin = new User(
       userValue.passwords,
@@ -54,9 +66,17 @@ export class LoginComponent implements OnInit {
       null,
       userValue.emails,
     )
-    this.auth.loginUser(userLogin.emails, userLogin.passwords)
-    this.loading = false;
 
+    // Envoie de la requête au serveur via la route API login
+
+    this.authService.loginUser(userLogin.emails, userLogin.passwords)
+      .subscribe(() => {
+        this.isAuth$.next(true);
+        this.router.navigate(['/accueil']);
+      },
+        error => this.msgErr = error.error.message
+      )
+    this.loading = false;
   }
 }
 

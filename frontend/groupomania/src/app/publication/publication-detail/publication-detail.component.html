@@ -10,7 +10,7 @@
         </mat-card-header>
       </div>
       <div>
-        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="icon a menu" *ngIf="userId === publication.usersId">
+        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="icon a menu" *ngIf="userId === publication.usersId || admin === 1 ">
           <mat-icon>more_vert</mat-icon>
         </button>
         <mat-menu #menu="matMenu" xPosition="before">
@@ -26,7 +26,7 @@
           > 
     <mat-card-content class="publication_card_content">
       <h3 class="publication_card_content_title">{{publication.titles}}</h3>
-      <p *ngIf="this.onDescriptionlength(publication.descriptions)" class="publication_card_content_description">{{this.onDescriptionlength(publication.descriptions)}}</p>
+      <p class="publication_card_content_description">{{publication.descriptions}}</p>
     </mat-card-content>
     <mat-card-actions class="publication_card_emoji">
       <button mat-button
@@ -51,26 +51,43 @@
           <mat-icon class="publication_card_emoji_icon">comment</mat-icon>
       </div>
     </mat-card-actions>
-    <mat-card-content class="comment_card" *ngFor="let comment of publication.comment">
-      <mat-card-header  class="comment_card_container"> 
-        <div mat-card-avatar class="comment_card_container_img" style="background-image: url({{comment.user.image}});"></div>
-        <div class="comment_card_container_description">
-          <mat-card-title class="comment_card_container_description_title">{{comment.user.names}} {{comment.user.firstnames}}</mat-card-title>
-          <div class="comment_card_container_description_content" >{{comment.comments}}</div>
+    <mat-card-content class="comment_card" *ngFor="let comment of comments">
+      <mat-card-header class="comment_card_container">
+        <div mat-card-avatar class="comment_card_container_img" style="background-image: url({{comment.user.image}});">
         </div>
+        <div class="comment_card_container_description">
+          <div class="comment_card_container_description_topbar">
+            <mat-card-title class="comment_card_container_description_topbar_title">{{comment.user.names}}
+              {{comment.user.firstnames}}</mat-card-title>   
+              <div>
+                <button class="comment_card_container_description_topbar_btn" mat-icon-button [matMenuTriggerFor]="menu" aria-label="icon a menu"
+                  *ngIf="userId === comment.usersId || admin === 1">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu" xPosition="before">
+                  <button *ngIf="userId === comment.usersId " mat-menu-item (click)="modifyComment(comment.idComments, comment.publicationsId)"> Modifier le commentaire </button>
+                  <button mat-menu-item (click)="deleteComment(comment.idComments, comment.publicationsId )"> Supprimer le commentaire </button>
+                </mat-menu>
+              </div>
+          </div>
+            <div class="comment_card_container_description_content">{{comment.comments}}</div>
+        </div>
+    
       </mat-card-header>
     </mat-card-content>
+    
     <mat-card-actions>
-      <form class="publication_card_form">
+      <form  [formGroup]="commentForm"  class="publication_card_form">
         <mat-form-field appearance="outline" class="publication_card_form_field">
           <mat-label>Envoyez un commentaire</mat-label>
           <input  matInput 
+                  formControlName="comments"
                   #message 
                   maxlength= "1200">
           <mat-hint class="publication_card_form_lineBottom" align= "start">{{message.value.length}} / 1200 </mat-hint>
           <mat-hint class="publication_card_form_lineBottom publication_card_form_lineBottom--icon" 
                     align= "end">
-            <button mat-button [disabled]="publicationForm.invalid" (click)="onSumitForm(publication.idPublications)">
+            <button mat-button [disabled]="commentForm.invalid" (click)="onSumitForm(publication.idPublications)">
               <mat-icon>send</mat-icon>
             </button>
           </mat-hint>
@@ -78,7 +95,5 @@
       </form>
     </mat-card-actions>
   </mat-card>
-
-  
 </section>
 

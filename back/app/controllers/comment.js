@@ -27,7 +27,7 @@ exports.createComment = (req, res) => {
       // Recovery request
       const newComment = {
         usersId: user.idUsers,
-        comments: String(validator.escape(req.body.comments)),
+        comments: String(req.body.comments),
         publicationsId: req.body.publicationsId,
       };
       if (!newComment) {
@@ -111,7 +111,54 @@ exports.getComment = (req, res) => {
       });
     });
 };
-
+/*
+ * ********* Function : Get all Comments Publication *********
+ */
+exports.getAllCommentsPublication = (req, res) => {
+  const idPublication = req.params.id;
+  // Find user in the database
+  db.user
+    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+    .then((user) => {
+      if (!user) {
+        res.status(401).send({
+          message: err.message || "Utilisateur non trouvé ",
+        });
+      }
+      //Find Comment of the publication in the database
+      else {
+        return db.comment.findAll({
+          where: { publicationsId: idPublication },
+          include: [
+            {
+              model: db.user,
+              as: "user",
+              attributes: ["names", "firstnames", "image"],
+            },
+          ],
+        });
+      }
+    })
+    // Return responses of server
+    .then((comments) => {
+      if (!comments) {
+        return res.status(404).send({
+          message:
+            "Une erreur s'est produite lors de la récupération de la publication avec l'id :" +
+            idPublication,
+        });
+      } else {
+        return res.status(200).send(comments);
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message ||
+          "Une erreur s'est produit lors de la création du commentaire",
+      });
+    });
+};
 /*
  * ********* Function : Update Comment *********
  */

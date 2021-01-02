@@ -2,20 +2,20 @@
 <form [formGroup]="publicationForm" *ngIf="!loading" >
     <mat-card class="publicationEdit_card">
         <mat-card-hearder>
-            <!-------------------------Title------------------------------------------->
+            <!------------------------- Title ------------------------->
             <mat-form-field appearance="outline" class="publicationEdit_card_form">
                 <mat-label>Titre de la publication</mat-label>
                 <input type="text" matInput class="form_control" formControlName="titles" id="titles"
                     placeholder="Voyage à Venise" />
             </mat-form-field>
         </mat-card-hearder>
-        <!-------------------------Image------------------------------------------->
+        <!------------------------- Image ------------------------->
         <div appearance="outline" class="publicationEdit_card_form publicationEdit_card_form--img">
             <label>Image de la publication :</label>
             <input type="file" class="form_control" accept="image/*" #imageInput (change)="uploadFile($event)" id="image" />
             <img mat-card-image [src]="imagePreview" *ngIf="imagePreview">
         </div>
-        <!-------------------------Description------------------------------------------->
+        <!------------------------- Description ------------------------->
         <mat-card-content>
             <mat-form-field appearance="outline" class="publicationEdit_card_form">
                 <mat-label>Description</mat-label>
@@ -23,12 +23,13 @@
                     placeholder="Descrivez votre publication..." />
             </mat-form-field>
         </mat-card-content>
-        <!-------------------------Button------------------------------------------->
+        <!------------------------- Button confirmation ------------------------->
         <mat-card-actions><button class="form_btnSubmit" mat-raised-button color="primary"
                 [disabled]="publicationForm.invalid" (click)="onSumitForm()">
                 ENVOYEZ
             </button>
-            <p class="text-danger" *ngIf="errorMsg">{{ errorMsg }}</p>
+            <!------------------------- Message d'erreur ------------------------->
+            <div class="invalid" *ngIf="msgErr"><p>{{msgErr}}</p></div>
         </mat-card-actions>
     </mat-card>
 </form>

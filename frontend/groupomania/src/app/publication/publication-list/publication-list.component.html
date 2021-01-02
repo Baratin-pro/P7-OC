@@ -1,14 +1,15 @@
-<section>
+<mat-spinner *ngIf="loading"></mat-spinner>
+<section *ngIf="!loading">
   <h2 class="publicationList_title">Liste des publications de Groupomania</h2> 
-  <a mat-icon-button class="topbar_nav_link" routerLink="../editPublication" aria-label="button création d'une publication">
-    <mat-icon class="topbar_nav_link_icon">post_add</mat-icon>
-    <span class="topbar_nav_span topbar_nav_span--last">Créer publication</span> 
+    <a mat-icon-button class="publicationList_edit" routerLink="../editPublication" aria-label="button création d'une publication">
+    <mat-icon class="publicationList_edit_icon">post_add</mat-icon>
+    <span class="publicationList_edit_text">Créer publication</span> 
   </a>
   <mat-card class="publicationList_card"  *ngFor="let publication of publications">
     <mat-card-header class="publicationList_card_header" (click)="onClickPublication(publication.idPublications)">
       <div mat-card-avatar class="publicationList_card_header_img" style="background-image: url({{publication.user.image}});"></div>
       <mat-card-title class="publicationList_card_header_title">{{publication.user.names}} {{publication.user.firstnames}} </mat-card-title>
-      <mat-card-subtitle> Publié à {{publication.publicationsDate | date:' HH:mm le dd/mm/yy '}}</mat-card-subtitle>
+      <mat-card-subtitle> Publié à {{publication.publicationsDate | date:' HH:mm le dd/MM/YY '}} </mat-card-subtitle>
     </mat-card-header>
       <img  class="publicationList_card_img" 
           mat-card-image [src]="publication.imagesUrl" 
@@ -26,6 +27,7 @@
               (click)="onLiked(publication.idPublications)"> 
         <mat-icon class="publicationList_card_emoji_icon publicationList_card_emoji_icon--thumb">thumb_up</mat-icon>
       </button>
+
       <button mat-button 
               matBadge="{{publication.dislikes}}"
               matBadgePosition="after"
@@ -33,6 +35,8 @@
               (click)="onDisliked(publication.idPublications)">
         <mat-icon class="publicationList_card_emoji_icon publicationList_card_emoji_icon--thumb">thumb_down</mat-icon>
       </button>
+
+
       <div    class="publicationList_card_emoji_comment"
               mat-button 
               matBadge="{{publication.commentCount}}" 
@@ -50,23 +54,6 @@
         </div>
       </mat-card-header>
     </mat-card-content>
-    <mat-card-actions>
-      <form class="publicationList_card_form">
-        <mat-form-field appearance="outline" class="publicationList_card_form_field">
-          <mat-label>Envoyez un commentaire</mat-label>
-          <input  matInput 
-                  #message 
-                  maxlength= "1200">
-          <mat-hint class="publicationList_card_form_lineBottom" align= "start">{{message.value.length}} / 1200 </mat-hint>
-          <mat-hint class="publicationList_card_form_lineBottom publicationList_card_form_lineBottom--icon" 
-                    align= "end">
-            <button mat-button>
-              <mat-icon>send</mat-icon>
-            </button>
-          </mat-hint>
-        </mat-form-field>
-      </form>
-    </mat-card-actions>
   </mat-card>
 
   

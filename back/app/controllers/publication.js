@@ -153,9 +153,15 @@ exports.getAllPublication = (req, res) => {
  * ********* Function : Update Publication *********
  */
 exports.updatePublication = (req, res) => {
-  const image = `${req.protocol}://${req.get("host")}/images/${
-    req.file.filename
-  }`;
+  if (req.body.titles === null || req.body.descriptions === null) {
+    return res
+      .status(400)
+      .send({ message: err.message || " Paramètres manquants" });
+  }
+  let image;
+  if (req.file) {
+    image = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
+  }
   const publicationReq = {
     idPublication: req.params.id,
     title: String(validator.escape(req.body.titles)),
@@ -185,20 +191,27 @@ exports.updatePublication = (req, res) => {
         });
         // Delete image if present
       } else {
-        const filename = publication.imagesUrl.split("/images/")[1];
-        fs.unlink(`app/images/${filename}`, (err) => {
-          if (err) {
-            return console.log(err);
-          } else {
-            console.log("image supprimée !");
-          }
-        });
-        // Modify publication in the database
-        return publication.update({
-          titles: publicationReq.title,
-          descriptions: publicationReq.description,
-          imagesUrl: publicationReq.imagesUrl,
-        });
+        if (publicationReq.imagesUrl == null) {
+          return publication.update({
+            titles: publicationReq.title,
+            descriptions: publicationReq.description,
+          });
+        } else {
+          const filename = publication.imagesUrl.split("/images/")[1];
+          fs.unlink(`app/images/${filename}`, (err) => {
+            if (err) {
+              return console.log(err);
+            } else {
+              console.log("image supprimée !");
+            }
+          });
+          // Modify publication in the database
+          return publication.update({
+            titles: publicationReq.title,
+            descriptions: publicationReq.description,
+            imagesUrl: publicationReq.imagesUrl,
+          });
+        }
       }
     })
     // Return responses of server

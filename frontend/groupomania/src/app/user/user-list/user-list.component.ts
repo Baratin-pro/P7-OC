@@ -2,6 +2,8 @@ import { UserService } from './../../services/user.service';
 import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { User } from './../../models/User.model';
+import { AuthService } from 'src/app/services/auth.service';
+import { StatusService } from 'src/app/services/status.service';
 
 
 @Component({
@@ -15,23 +17,41 @@ export class UserListComponent implements OnInit {
   userSub: Subscription;
   users: [];
   loading: boolean = true;
- // errMsg: string;
   erreur: boolean = false;
+  private admin: number;
 
-  constructor(private userService : UserService) { }
+  constructor(private userService: UserService,
+    private authService: AuthService,
+    private statusService: StatusService,) { }
 
   ngOnInit(): void {
-    //this.onFetchUsers();
     this.getListUsers();
+    this.admin = this.authService.getAdmin();
   }
 
-  getListUsers() : void {
+  // Function : injection de la liste des utilisateurs membres
+  getListUsers(): void {
     this.userService.getAllUsers()
       //.pipe(takeUntil())
-      .subscribe( responseData => {
+      .subscribe(responseData => {
+        this.statusService.setstatus('Déconnection');
         this.users = responseData;
         this.loading = false;
-        }
-      )//erreur
-    }
+      }
+      )
+  }
+
+  // Function: suppression du compte de l'user cible
+
+  deleteUserFocus(idUserFocus: string): void {
+    this.userService.deleteUser(idUserFocus).subscribe(
+      (responseData: { message: string }) => {
+        console.log(responseData.message);
+        this.userService.getAllUsers().subscribe(
+          (userAll) => {
+            this.users = userAll;
+          }
+        )
+      })
+  }
 }

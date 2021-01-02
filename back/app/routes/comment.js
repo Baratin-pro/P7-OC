@@ -9,6 +9,7 @@ module.exports = (app) => {
   router.get("/:id", auth, commentCtrl.getComment);
   router.put("/:id", auth, commentCtrl.updateComment);
   router.delete("/:id", auth, commentCtrl.deleteComment);
+  router.get("/publication/:id", auth, commentCtrl.getAllCommentsPublication);
   //Execution
   app.use("/api/comment", router);
 };

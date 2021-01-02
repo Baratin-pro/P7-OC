@@ -8,17 +8,15 @@
   display: flex;
   justify-content: space-between;
   &_containerImg {
-    height: 6em;
-    width: 30%;
-    @media screen and (min-width: 700px) {
-      height: 10em;
+    width: 200px;
+    margin: auto;
+    &_img {
+      width: 100%;
+      display: block;
+      margin: 0 auto;
     }
   }
-  &_img {
-    height: 100%;
-    display: block;
-    margin: 0 auto;
-  }
+
   &_nav {
     display: flex;
     justify-content: space-between;

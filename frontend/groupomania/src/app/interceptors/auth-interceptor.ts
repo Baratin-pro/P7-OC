@@ -1,14 +1,19 @@
 import { HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AuthService } from '../services/auth.service';
-
+import { CookieService } from 'ngx-cookie-service';
+import { SessionService } from '../services/cookies.service';
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-  constructor(private authService: AuthService) { }
+  constructor(private sessionService: SessionService, private cookieService: CookieService) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler) {
-    const authToken = this.authService.getToken();
+    let authToken;
+    if (this.cookieService.check('cookThail')) {
+      authToken = this.sessionService.getTokenCookie();
+    } else {
+      authToken = '';
+    }
     const newRequest = req.clone({
       headers: req.headers.set('Authorization', 'Bearer ' + authToken)
     });

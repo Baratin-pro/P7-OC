@@ -10,9 +10,16 @@
       <mat-card-title class="userList_card_container_title">{{user.names}} {{user.firstnames}} </mat-card-title>
       <mat-card-subtitle><a class="userList_card_container_link" href="mailto:{{user.emails}}">{{user.emails}}</a></mat-card-subtitle>
     </mat-card-header>
+    <div>
+      <button class="userList_card_btn" mat-icon-button [matMenuTriggerFor]="menu" aria-label="icon a menu"
+        *ngIf="admin === 1">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu" xPosition="before">
+        <button mat-menu-item (click)="deleteUserFocus(user.idUsers)"> Supprimer l'utilisateur </button>
+      </mat-menu>
+    </div>
   </mat-card>
-<!--  
-    <div *ngIf="erreur">Nous vous prions de nous excuser de la gêne occasionnée. Nous rencontrons des problèmes de connexion au serveur.</div> -->
 </section>
 
 

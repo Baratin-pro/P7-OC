@@ -3,7 +3,8 @@ import { Router } from '@angular/router';
 import { Liked_dislikedService } from './../../services/liked_disliked.service';
 import { PublicationService } from './../../services/publication.service';
 import { Component, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/services/auth.service';
+import { StatusService } from 'src/app/services/status.service';
 
 @Component({
   selector: 'app-publication-list',
@@ -12,22 +13,31 @@ import { Subscription } from 'rxjs';
 })
 export class PublicationListComponent implements OnInit {
 
-  publicationSub: Subscription;
   publications: [];
   loading: boolean;
   errMsg: string;
-  liked: boolean = true;
-  disliked: boolean = true;
   idPublications: string;
+  dislike: boolean = false;
+  like: boolean = false;
 
-  constructor(private publicationsService: PublicationService, private liked_dislikedService: Liked_dislikedService, private router: Router) { }
+  private userId: number;
+  private admin: number;
+
+  constructor(private publicationsService: PublicationService,
+    private liked_dislikedService: Liked_dislikedService,
+    private router: Router,
+    private authService: AuthService,
+    private statusService: StatusService) { }
 
   ngOnInit(): void {
+    this.loading = true;
     this.getListPublications();
+    this.userId = this.authService.getUserId();
+    this.admin = this.authService.getAdmin();
 
   }
 
-  //Function action
+  //Function : réduction du nombre de caractères de la description
   onDescriptionlength(caractereLength): string {
     if (caractereLength.length > 250) {
       return caractereLength.slice(0, 250) + " [...]";
@@ -36,53 +46,57 @@ export class PublicationListComponent implements OnInit {
     }
   }
 
-  //Request
+  //Function : injection de toutes les publications dans la navigation
+
   getListPublications(): void {
     this.publicationsService.getAllPublications()
       .subscribe(responseData => {
+        this.statusService.setstatus('Déconnection');
         this.publications = responseData;
-        console.log('publications:', this.publications)
-        this.loading = true;
+        this.loading = false;
       })
   }
+
+  //Function : recherche la publication cible
+
   getPublication(id: string): void {
     this.publicationsService.getOnePublication(id).subscribe(
     )
   }
+
+  // Function : redirection de l'utilisateur vers la page de la publication cible
 
   onClickPublication(id: string) {
     this.getPublication(id)
     this.router.navigate(['publication', id])
   }
 
-  onLiked(id): any {
-    id = new UserLiked(id);
-    if (this.liked = true) {
-      this.liked_dislikedService.postLiked(id).subscribe(
-      )
-      this.liked = false;
-      return this.liked
-    } else if (this.liked = false) {
-      this.liked_dislikedService.deleteLiked(id).subscribe(
-      )
-      this.liked = true;
-      return this.liked;
-    }
+
+  // ------------------------ Like-Dislike --------------------------
+
+  // Function: ajout like et supprime le dislike  et/ou supprime le like  
+
+  onLiked(idPost: string): any {
+    const objPost = new UserLiked(idPost);
+    this.liked_dislikedService.postLiked(objPost)
+      .subscribe(() => {
+        this.publicationsService.getAllPublications()
+          .subscribe(responseData => {
+            this.publications = responseData;
+          })
+      });
   }
 
-  onDisliked(id): any {
-    id = new UserLiked(id);
-    if (this.disliked = true) {
-      this.liked_dislikedService.postDisliked(id).subscribe(
-      )
-      this.disliked = false;
-      return this.disliked;
-    } else if (this.disliked = false) {
-      this.liked_dislikedService.deleteDisliked(id).subscribe(
-      )
-      this.disliked = true;
-      return this.disliked;
-    }
-  }
+  // Function: ajout dislike et supprime le like  et/ou supprime le dislike  
 
+  onDisliked(idPost: string): any {
+    const objPost = new UserLiked(idPost);
+    this.liked_dislikedService.postDisliked(objPost)
+      .subscribe(() => {
+        this.publicationsService.getAllPublications()
+          .subscribe(responseData => {
+            this.publications = responseData;
+          })
+      });
+  }
 }

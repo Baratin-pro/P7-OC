@@ -1,6 +1,6 @@
 <mat-spinner *ngIf="loading"></mat-spinner>
 <form [formGroup]="loginForm" *ngIf="!loading" class="form">
- <!-------------------------EMAIL-------------------------------------------> 
+ <!------------------------- EMAIL -------------------------> 
  <mat-form-field appearance="outline">
   <mat-label>Email</mat-label>
   <input  type="email" 
@@ -11,12 +11,12 @@
          <mat-error *ngIf="this.loginForm.controls.emails.hasError('email') && !this.loginForm.controls.emails.hasError('required')">
             Veuillez entrer une adresse email valide !
           </mat-error>
-          <mat-error *ngIf="this.loginForm.controls.emails.hasError('required')">
+          <mat-error *ngIf=" this.loginForm.controls.emails.hasError('required')">
             L'adresse email est <strong> requis </strong>
           </mat-error>
   </mat-form-field>
 
-<!-------------------------Password-------------------------------------------> 
+<!------------------------- Password -------------------------> 
   <mat-form-field appearance="outline">
   <mat-label>Mot de passe</mat-label>
   <input  matInput 
@@ -39,16 +39,19 @@
             {{hide ? 'visibility_off' : 'visibility'}}
   </mat-icon>
   </mat-form-field>
+ <!------------------------- Button Confirmation ------------------------->
   <button class="form_btnSubmit"
           mat-raised-button 
           color="primary" 
           [disabled]="loginForm.invalid" 
           (click)="onSumitForm()">SE CONNECTER
   </button>
-  <p class="text-danger" *ngIf="errorMsg">{{ errorMsg }}</p>
+   
 </form>
 <a        class="btnSignup"
           routerLink="/auth/signup"
           mat-raised-button 
           color="primary">SE DIRIGER VERS L'INSCRIPTION
 </a>
+<!------------------------- Message d'erreur ------------------------->
+<div class="invalid" *ngIf="msgErr"><p>{{msgErr}}</p></div>

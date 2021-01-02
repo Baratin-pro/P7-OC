@@ -123,6 +123,7 @@ exports.login = (req, res) => {
         } else {
           res.status(200).send({
             userId: user.idUsers,
+            admin: user.role,
             token: jwt.sign({ userId: user.idUsers }, config.secret, {
               expiresIn: "24h",
             }),
@@ -270,7 +271,7 @@ exports.deleteUser = (req, res) => {
     })
     // Find publication of the user
     .then(() => {
-      return db.publication.findOne({ where: { usersId: id } });
+      return db.publication.findAll({ where: { usersId: id } });
     })
     .then((publicationFind) => {
       // Check presence publications of the user
@@ -294,40 +295,38 @@ exports.deleteUser = (req, res) => {
         db.user.destroy({ where: { idUsers: id } });
         return res.status(200).send({ message: "User supprimé !" });
       }
-      // Destroy comments of the user publications
-      return db.comment.destroy({
-        where: { publicationsId: publication.idPublications },
-      });
-    })
-    .then(() => {
-      // Destroy liked of the user publications
-      return db.user_liked.destroy({
-        where: {
-          publicationsId: publication.idPublications,
-        },
-      });
-    })
-    // Destroy disliked of the user publications
-    .then(() => {
-      return db.user_disliked.destroy({
-        where: {
-          publicationsId: publication.idPublications,
-        },
-      });
     })
     // Destroy images of the user publications
     .then(() => {
       // Delete image if present
-      const filename = publication.imagesUrl.split("/images/")[1];
-      fs.unlink(`app/images/${filename}`, (err) => {
-        if (err) {
-          return console.log(err);
-        } else {
-          console.log("image supprimée !");
+      for (let i = 0; i < publication.length; i++) {
+        if (publication[i].imagesUrl) {
+          console.log(publication[i].imagesUrl);
+          const filename = publication[i].imagesUrl.split("/images/")[1];
+          fs.unlink(`app/images/${filename}`, (err) => {
+            if (err) {
+              return console.log(err);
+            } else {
+              console.log("image supprimée !");
+            }
+          });
         }
-      });
+        // Destroy comments of the user publications
+        db.comment.destroy({
+          where: { publicationsId: publication[i].idPublications },
+        });
+        // Destroy liked of the user publications
+        db.user_liked.destroy({
+          where: { publicationsId: publication[i].idPublications },
+        });
+        // Destroy disliked of the user publication
+        db.user_disliked.destroy({
+          where: { publicationsId: publication[i].idPublications },
+        });
+      }
+
       // Destroy publications of the user
-      return publication.destroy();
+      return db.publication.destroy({ where: { usersId: id } });
     })
     // Destroy user
     .then(() => {

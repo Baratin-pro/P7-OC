@@ -1,3 +1,5 @@
+import { AuthService } from 'src/app/services/auth.service';
+import { StatusService } from './../../services/status.service';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -7,10 +9,21 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HeaderComponent implements OnInit {
   title: string = 'groupomania';
-  
-  constructor() { }
+  status: string = '';
+
+  constructor(private statusService: StatusService,
+    private authService: AuthService) { }
 
   ngOnInit(): void {
+    this.statusService.status.subscribe(status => {
+      this.status = status;
+    })
+
   }
+
+  deconnection(): void {
+    this.authService.logout();
+  }
+
 
 }

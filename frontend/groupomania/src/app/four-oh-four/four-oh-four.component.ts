@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { StatusService } from '../services/status.service';
 
 @Component({
   selector: 'app-four-oh-four',
@@ -7,9 +8,10 @@ import { Component, OnInit } from '@angular/core';
 })
 export class FourOhFourComponent implements OnInit {
 
-  constructor() { }
+  constructor(private statusService: StatusService) { }
 
   ngOnInit(): void {
+    this.statusService.setstatus('Se connecter');
   }
 
 }

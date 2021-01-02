@@ -21,27 +21,15 @@ export class Liked_dislikedService {
 
   // Function : Create Liked
 
-  postLiked(id: string): Observable<any> {
-    return this.http.post(this.urlLiked + '/add', id)
-  };
-
-
-  // Function : Delete Liked
-
-  deleteLiked(idPublications): Observable<any> {
-    return this.http.delete(this.urlLiked + '/delete', idPublications);
+  postLiked(idPublications: any): Observable<any> {
+    return this.http.post(this.urlLiked, idPublications);
   }
 
   // Function : Create Disliked
 
-  postDisliked(idPublications: string): Observable<any> {
-    return this.http.post(this.urlDislikedDelete + '/add', idPublications)
-  };
-
-  // Function : Detele Lisliked
-
-  deleteDisliked(idPublications): Observable<any> {
-    return this.http.delete(this.urlDislikedDelete + '/delete', idPublications);
+  postDisliked(idPublications: any): Observable<any> {
+    return this.http.post(this.urlDislikedDelete, idPublications);
   }
+
 
 }
