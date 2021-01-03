@@ -10,12 +10,12 @@
 
 - Renommez le fichier db.config-prod.js en db.conf.js
 
-- Modifiez son contenut
+- Modifiez son contenu
 
-- Créez vous une TABLE comportant le nom approrié que vous saisis dans le fichier config.db sur la ligne : DB ""
+- Créez vous une TABLE comportant le nom approrié que vous avez saisis dans le fichier config.db sur la ligne : DB ""
 
-- Cliquez sur l'exécutable demarrageServeur
+- Cliquez sur l'exécutable serveurBack-end et serveurFrontend
 
-- Dans votre base de donnée, modifiez le role de l'user ou les user qui seront vos administrateurs sur le site, en 0 -> 1
+- Dans votre base de donnée, modifiez le role de l'user (ou les user) qui seront vos administrateurs sur le site, en 0 -> 1
 
 - En vous souhaitant une agréable découverte du site et de ces fonctionnalités
