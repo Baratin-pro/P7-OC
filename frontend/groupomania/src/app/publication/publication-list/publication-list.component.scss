@@ -11,13 +11,21 @@
     bottom: 30px;
     z-index: 20;
     &_icon {
-      font-size: 4em;
+      font-size: 2em;
       display: block;
       transform: translate(33px, -2px);
+      @media screen and (min-width: 700px) {
+        font-size: 4em;
+      }
     }
     &_text {
-      font-size: 1.2em;
+      font-size: 0.8em;
       display: block;
+      transform: translate(10px, -16px);
+      @media screen and (min-width: 700px) {
+        font-size: 1.2em;
+        transform: none;
+      }
     }
   }
   &_card {

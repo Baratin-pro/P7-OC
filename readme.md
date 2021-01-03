@@ -8,7 +8,7 @@
 
 - Dirigez vous dans le dossier back/app/config
 
-- Renommez le fichier db.config-prod.js en db.conf.js
+- Renommez le fichier db.config-prod.js en db.config.js
 
 - Modifiez son contenu
 
@@ -18,4 +18,4 @@
 
 - Dans votre base de donnée, modifiez le role de l'user (ou les user) qui seront vos administrateurs sur le site, en 0 -> 1
 
-- En vous souhaitant une agréable découverte du site et de ces fonctionnalités
+- En vous souhaitant une agréable découverte du site et de ses fonctionnalités

@@ -89,6 +89,7 @@ export class SignupComponent implements OnInit {
               this.router.navigate(['/accueil']);
             },
               error => this.msgErr = error.error.message
+
             )
           this.loading = false;
         },
