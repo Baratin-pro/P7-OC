@@ -7,24 +7,37 @@ const Op = db.Sequelize.Op;
 const validator = require("validator");
 const userDecodedTokenId = require("../middleware/userDecodedTokenId.js");
 
-/*
+/**
  * ********* Function : Create Comment *********
+ *
+ * -- Description : Permet la creation d'un commentaire
+ *
+ * @params : req.body.comments
+ * @params : req.body.publicationsId
+ * @params : JSON.stringify({"comments":"Ceci est un commentaire ","publicationsId":"76"});
+ *
+ * -- Resultat exemple :
+ *
+ * "comments" :"Ceci est un commentaire";
+ * "publicationsId" : "54";
  */
+
 exports.createComment = (req, res) => {
+  let publication;
+
   if (!req.body.comments) {
     return res.status(400).send({ message: "Paramètre absent" });
   }
-  let publication;
-  // Find user in the database
+
   db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+
     .then((user) => {
       if (!user) {
         res.status(401).send({
           message: err.message || "Utilisateur non trouvé ",
         });
       }
-      // Recovery request
       const newComment = {
         usersId: user.idUsers,
         comments: String(req.body.comments),
@@ -35,30 +48,32 @@ exports.createComment = (req, res) => {
       }
       return newComment;
     })
-    // Create new comment
+
     .then((newComment) => {
       return db.comment.create(newComment);
     })
-    // Find publication of comment
+
     .then((createComment) => {
       return db.publication.findOne({
         where: { idPublications: createComment.publicationsId },
       });
     })
-    // Find and count all comments of publication
+
     .then((publicationFind) => {
       publication = publicationFind;
       return db.comment.findAndCountAll({
         where: { publicationsId: publication.idPublications },
       });
     })
+
     .then((countCommment) => {
       return publication.update({ commentCount: countCommment.count });
     })
-    // Return responses of server
+
     .then(() => {
       res.status(201).send({ message: "Commentaire créé avec succes" });
     })
+
     .catch((err) => {
       res.status(500).send({
         message:
@@ -67,22 +82,33 @@ exports.createComment = (req, res) => {
       });
     });
 };
-/*
+
+/**
  * ********* Function : Get One Comment *********
+ *
+ * -- Description : Permet la récupération d'un commentaire
+ *
+ * @params : req.params.id
+ *
+ * -- Resultat exemple :
+ *
+ * "comments" : "Ceci est un commentaire"
+ * "idComments" : 12
+ *
  */
+
 exports.getComment = (req, res) => {
-  // Recovery request
   const idComment = req.params.id;
-  // Find user in the database
+
   db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+
     .then((user) => {
       if (!user) {
         res.status(401).send({
           message: err.message || "Utilisateur non trouvé ",
         });
       }
-      // Find comment in the database
       return db.comment.findOne({
         where: {
           idComments: idComment,
@@ -91,7 +117,7 @@ exports.getComment = (req, res) => {
         attributes: ["comments", "idComments"],
       });
     })
-    // Return responses of server
+
     .then((comment) => {
       if (!comment) {
         return res.status(404).send({
@@ -103,6 +129,7 @@ exports.getComment = (req, res) => {
         return res.status(200).send(comment);
       }
     })
+
     .catch((err) => {
       res.status(500).send({
         message:
@@ -111,22 +138,41 @@ exports.getComment = (req, res) => {
       });
     });
 };
-/*
+
+/**
  * ********* Function : Get all Comments Publication *********
+ *
+ * -- Description : Permet la récupération des commentaires de la publication cible
+ *
+ * @params : req.params.id
+ *
+ * -- Resultat exemple :
+ *
+ * {
+ *       "idComments": 238,
+ *       "comments": "Ceci est un commentaire",
+ *       "publicationsId": 76,
+ *       "usersId": 180,
+ *       "user": {
+ *           "names": "Versaille",
+ *           "firstnames": "Louis",
+ *           "image": "http://localhost:3000/images/44908592981609749963981.jpg"
+ *       }
+ *   }
  */
+
 exports.getAllCommentsPublication = (req, res) => {
   const idPublication = req.params.id;
-  // Find user in the database
+
   db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+
     .then((user) => {
       if (!user) {
         res.status(401).send({
           message: err.message || "Utilisateur non trouvé ",
         });
-      }
-      //Find Comment of the publication in the database
-      else {
+      } else {
         return db.comment.findAll({
           where: { publicationsId: idPublication },
           include: [
@@ -139,7 +185,7 @@ exports.getAllCommentsPublication = (req, res) => {
         });
       }
     })
-    // Return responses of server
+
     .then((comments) => {
       if (!comments) {
         return res.status(404).send({
@@ -151,6 +197,7 @@ exports.getAllCommentsPublication = (req, res) => {
         return res.status(200).send(comments);
       }
     })
+
     .catch((err) => {
       res.status(500).send({
         message:
@@ -159,19 +206,32 @@ exports.getAllCommentsPublication = (req, res) => {
       });
     });
 };
-/*
+
+/**
  * ********* Function : Update Comment *********
+ *
+ * -- Description : Permet la modification d'un commentaire
+ *
+ * @params : req.params.id
+ * @params : req.body.comments
+ * @params : JSON.stringify({"comments":"Ceci est un commentaire "});
+ *
+ * -- Resultat exemple :
+ *
+ * "comments" :"Ceci est un commentaire";
  */
+
 exports.updateComment = (req, res) => {
+  const idComment = req.params.id;
+  const commentReq = String(validator.escape(req.body.comments));
+
   if (!req.body.comments) {
     return res.status(400).send({ message: "Paramètre absent" });
   }
-  const idComment = req.params.id;
-  const commentReq = String(validator.escape(req.body.comments));
-  // Find user in the database
+
   db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-    // Find comment in the database
+
     .then((user) => {
       if (!user) {
         res.status(401).send({
@@ -185,7 +245,7 @@ exports.updateComment = (req, res) => {
         },
       });
     })
-    // Modify comment in the database
+
     .then((comment) => {
       if (!comment) {
         return res.status(404).send({
@@ -207,18 +267,27 @@ exports.updateComment = (req, res) => {
         );
       }
     })
-    // Return responses of server
+
     .then(() => {
       res.status(201).send({ message: "Commentaire modifié avec succès" });
     })
+
     .catch((err) => {
       res.status(500).send({
         message: err.message,
       });
     });
 };
-/*
+/**
  * ********* Function : Delete Comment *********
+ *
+ * -- Description : Permet la suppression d'un commentaire
+ *
+ * @params : req.params.id
+ *
+ * -- Resultat exemple :
+ *
+ *  Commentaire supprimé
  */
 exports.deleteComment = (req, res) => {
   const idComment = req.params.id;
@@ -226,9 +295,9 @@ exports.deleteComment = (req, res) => {
   let comment;
   let publication;
 
-  // Find user in the database
   db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+
     .then((userFind) => {
       user = userFind;
       if (!user) {
@@ -236,40 +305,38 @@ exports.deleteComment = (req, res) => {
           message: err.message || "Utilisateur non trouvé ",
         });
       }
-      // Find comment in the database
+
       return db.comment.findOne({
         where: { idComments: idComment },
       });
     })
+
     .then((commentFind) => {
       comment = commentFind;
-      // Check identity user
       if (comment.usersId === user.idUsers || user.role == 1) {
-        // Destroy comment in the database
         comment.destroy({ where: { idComments: idComment } });
-        // Find publication in the database
         return db.publication.findOne({
           where: { idPublications: comment.publicationsId },
         });
       } else {
-        return res.status(403).send({ message: "Condition non respectée " });
+        throw res.status(403).send({ message: "Condition non respectée " });
       }
     })
     .then((publicationFind) => {
       publication = publicationFind;
-      // Find and count all comments of publication
       return db.comment.findAndCountAll({
         where: { publicationsId: publication.idPublications },
       });
     })
+
     .then((countCommment) => {
-      // Modify comment in the database
       return publication.update({ commentCount: countCommment.count });
     })
-    // Return responses of server
+
     .then(() => {
       res.status(200).send({ message: "Commentaire supprimé !" });
     })
+
     .catch((err) => {
       res.status(500).send({
         message: err.message,

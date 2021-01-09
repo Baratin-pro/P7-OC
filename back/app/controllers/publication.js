@@ -10,20 +10,33 @@ const validator = require("validator");
 
 let user;
 let publication;
-/*
+
+/**
  * ********* Function : Create Publication *********
+ *
+ * -- Description : Permet la creation d'une publication
+ *
+ * @params : new FormData();
+ * @params : data.append("titles", "titre de la publication");
+ * @params : data.append("descriptions", "description de celle-ci");
+ * @params : data.append("image", fileInput.files[0], "/C:/xxx/xxx/xxx/img/21326360.jpg");
+ *
+ * -- Resultat exemple :
+ *
+ * Publication créée
+ *
  */
+
 exports.createPublication = (req, res) => {
-  // Find user in the database
   db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+
     .then((user) => {
       if (!user) {
         res.status(401).send({
           message: err.message || "Utilisateur non trouvé ",
         });
       }
-      // Recovery request
       const image = `${req.protocol}://${req.get("host")}/images/${
         req.file.filename
       }`;
@@ -34,34 +47,61 @@ exports.createPublication = (req, res) => {
         publicationsDate: new Date(),
         usersId: user.idUsers,
       };
-      // Create new publication
       return db.publication.create(publication);
     })
-    // Return responses of server
+
     .then(() => {
       res.status(201).send({ message: "Publication créé avec succes" });
     })
+
     .catch((err) => {
       res.status(500).send({
         message: err.message,
       });
     });
 };
-/*
+
+/**
  * ********* Function : Get One Publication *********
+ *
+ *
+ * -- Description : Permet la récupération des commentaires de la publication cible
+ *
+ * @params : req.params.id
+ *
+ * -- Resultat exemple :
+ *
+ * {
+ * "idPublications": 76,
+ * "titles": "titre de la publication",
+ * "descriptions": "description de la publication",
+ * "imagesUrl": "http://localhost:3000/images/78432148211609946509734.jpg",
+ * "publicationsDate": "2021-01-06T15:21:49.000Z",
+ * "commentCount": 0,
+ * "likes": 0,
+ * "dislikes": 0,
+ * "usersId": 180,
+ * "comment": [],
+ * "user": {
+ *     "names": "Versaille",
+ *     "firstnames": "Louis",
+ *     "image": "http://localhost:3000/images/44908592981609749963981.jpg",
+ *    "idUsers": 180
+ * }
+ * }
  */
+
 exports.getOnePublication = (req, res) => {
   const id = req.params.id;
-  // Find user in the database
   db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+
     .then((user) => {
       if (!user) {
         res.status(401).send({
           message: err.message || "Utilisateur non trouvé ",
         });
       }
-      // Find publication in the database
       return db.publication.findOne({
         where: { idPublications: id },
         include: [
@@ -83,7 +123,7 @@ exports.getOnePublication = (req, res) => {
         ],
       });
     })
-    // Return responses of server
+
     .then((publication) => {
       if (!publication) {
         return res.status(404).send({
@@ -95,28 +135,31 @@ exports.getOnePublication = (req, res) => {
         return res.status(200).send(publication);
       }
     })
+
     .catch((err) => {
       res.status(500).send({
         message: err.message,
       });
     });
 };
-/*
+/**
  * ********* Function : Get All Publication *********
+ *
+ *
+ *  -- Description : Permet l'affichage de toute les publications
  */
 exports.getAllPublication = (req, res) => {
   let publicationsDate = req.query.publicationsDate;
 
-  // Find user in the database
   db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+
     .then((user) => {
       if (!user) {
         res.status(401).send({
           message: err.message || "Utilisateur non trouvé ",
         });
       }
-      // Find all publication in the database
       return db.publication.findAll({
         where: publicationsDate,
         order: [["publicationsDate", "DESC"]],
@@ -139,18 +182,37 @@ exports.getAllPublication = (req, res) => {
         ],
       });
     })
-    // Return responses of server
+
     .then((publication) => {
       res.status(200).send(publication);
     })
+
     .catch((err) => {
       res.status(500).send({
         message: err.message,
       });
     });
 };
-/*
+
+/**
  * ********* Function : Update Publication *********
+ *
+ *  -- Description : Permet la modification de la publication
+ *
+ * @params : new FormData();
+ * @params : data.append("title", "Voyage de Gulivert");
+ * @params : data.append("description", "Luluputin");
+ * @params : data.append("image", fileInput.files[0], "/path/to/file");
+ *
+ *  -- Resultat exemple :
+ *
+ * {
+ *  "title" : "Voyage de Gulivert",
+ *  "description" : "Luluputin",
+ *  "image" : " http://localhost:3000/images/44908592981609749963981.jpg ",
+ *  ...
+ * }
+ *
  */
 exports.updatePublication = (req, res) => {
   if (req.body.titles === null || req.body.descriptions === null) {
@@ -162,26 +224,28 @@ exports.updatePublication = (req, res) => {
   if (req.file) {
     image = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
   }
+
   const publicationReq = {
     idPublication: req.params.id,
     title: String(validator.escape(req.body.titles)),
     description: String(validator.escape(req.body.descriptions)),
     imagesUrl: image,
   };
-  // Find user in the database
+
   db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+
     .then((user) => {
       if (!user) {
         res.status(401).send({
           message: err.message || "Utilisateur non trouvé ",
         });
       }
-      // Find comment in the database
       return db.publication.findOne({
         where: { idPublications: publicationReq.idPublication },
       });
     })
+
     .then((publication) => {
       if (!publication) {
         return res.status(404).send({
@@ -189,7 +253,6 @@ exports.updatePublication = (req, res) => {
             "Une erreur s'est produite lors de la récupération de User avec l'id :" +
             publicationReq.idPublication,
         });
-        // Delete image if present
       } else {
         if (publicationReq.imagesUrl == null) {
           return publication.update({
@@ -205,7 +268,6 @@ exports.updatePublication = (req, res) => {
               console.log("image supprimée !");
             }
           });
-          // Modify publication in the database
           return publication.update({
             titles: publicationReq.title,
             descriptions: publicationReq.description,
@@ -214,7 +276,7 @@ exports.updatePublication = (req, res) => {
         }
       }
     })
-    // Return responses of server
+
     .then(() => {
       res.status(201).send({
         message:
@@ -223,18 +285,28 @@ exports.updatePublication = (req, res) => {
           " a été modifié avec succès",
       });
     })
+
     .catch((err) => {
       res.status(404).send({
         message: err.message || "Publication non trouvé",
       });
     });
 };
-/*
+/**
  * ********* Function : Delete Publication *********
+ *
+ * -- Description : Permet la suppression de la publication
+ *
+ * @params : req.params.id
+ *
+ * -- Resultat exemple :
+ *
+ *  Publication supprimée
+ *
  */
 exports.deleteOnePublication = (req, res) => {
   const id = req.params.id;
-  // Find user in the database
+
   db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
     .then((userFind) => {
@@ -248,29 +320,26 @@ exports.deleteOnePublication = (req, res) => {
         where: { idPublications: id },
       });
     })
-    // Find publication in the database
+
     .then((publicationFind) => {
       publication = publicationFind;
-      // Check identity user
       if (publication.usersId === user.idUsers || user.role == 1) {
-        // Destroy comments of the publication
+        n;
         return db.comment.destroy({ where: { publicationsId: id } });
       } else {
-        return res.status(403).send({ message: "Condition non respectée " });
+        throw res.status(403).send({ message: "Condition non respectée " });
       }
     })
+
     .then(() => {
-      // Destroy liked of the publications
       return db.user_liked.destroy({ where: { publicationsId: id } });
     })
 
     .then(() => {
-      // Destroy disliked of the publication
       return db.user_disliked.destroy({ where: { publicationsId: id } });
     })
 
     .then(() => {
-      // Destroy image of the publication
       const filename = publication.imagesUrl.split("/images/")[1];
       fs.unlink(`app/images/${filename}`, (err) => {
         if (err) {
@@ -279,13 +348,13 @@ exports.deleteOnePublication = (req, res) => {
           console.log("image supprimée !");
         }
       });
-      // Destroy publication in the database
       return publication.destroy({ where: { idPublications: id } });
     })
-    // Return responses of server
+
     .then(() => {
       res.status(200).send({ message: "Publication supprimée !" });
     })
+
     .catch((err) => {
       res.status(500).send({
         message: err.message,

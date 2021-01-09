@@ -9,13 +9,13 @@
           <mat-card-subtitle> Publié à {{publication.publicationsDate | date:' HH:mm le dd/mm/yy '}}</mat-card-subtitle>
         </mat-card-header>
       </div>
-      <div>
-        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="icon a menu" *ngIf="userId === publication.usersId || admin === 1 ">
+      <div *ngIf="userId === publication.usersId || admin === 1 " >
+        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="icon a menu">
           <mat-icon>more_vert</mat-icon>
         </button>
         <mat-menu #menu="matMenu" xPosition="before">
-          <button mat-menu-item (click)="modifyPublication(publication.idPublications)"> Modifier la publication</button>
-          <button mat-menu-item (click)="deletePublication(publication.idPublications)">Supprimer la publication</button>
+          <button  *ngIf="userId === publication.usersId " mat-menu-item (click)="modifyPublication(publication.idPublications)"> Modifier la publication</button>
+          <button   *ngIf="userId === publication.usersId || admin === 1 " mat-menu-item (click)="deletePublication(publication.idPublications)">Supprimer la publication</button>
         </mat-menu>
       </div>
     </div>

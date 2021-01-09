@@ -11,15 +11,26 @@ let user;
 let publication;
 let countDisliked;
 let countLiked;
-/*
+
+/**
  * ********* Function : Create Liked *********
+ *
+ * -- Description : Permet la creation d'un like
+ *
+ * @params : req.body.id
+ * @params : JSON.stringify({"id":"54"});
+ *
+ * -- Resultat exemple :
+ *
+ * Like ajouté ou like supprimé
  */
+
 exports.liked = (req, res) => {
   const id = req.body.id;
 
-  // Find user in the database
   db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+
     .then((userFind) => {
       user = userFind;
       if (!user) {
@@ -27,12 +38,12 @@ exports.liked = (req, res) => {
           .status(401)
           .send({ message: err.message || "Utilisateur non trouvé " });
       } else {
-        // Find publication of request
         return db.publication.findOne({
           where: { idPublications: id },
         });
       }
     })
+
     .then((publicationFind) => {
       publication = publicationFind;
       if (!publication) {
@@ -40,7 +51,6 @@ exports.liked = (req, res) => {
           message: "Publication : " + id + " non trouvé ",
         });
       } else {
-        // Find user of request in the table user_liked
         return db.user_liked.findOne({
           where: {
             usersId: user.idUsers,
@@ -49,34 +59,33 @@ exports.liked = (req, res) => {
         });
       }
     })
+
     .then((userCheckPresence) => {
       if (userCheckPresence) {
         userCheckPresence.destroy();
-        // Find and count all likes of publication
         return db.user_liked
           .findAndCountAll({
             where: { publicationsId: publication.idPublications },
           })
 
           .then((user_likedFindAndCountAll) => {
-            // Modify publication in the database
             return publication.update({
               likes: user_likedFindAndCountAll.count,
             });
           })
+
           .then(() => {
             res.status(200).send({ message: "Liked supprimé " });
           });
       } else {
-        // Create new liked
         return db.user_liked.create({
           usersId: user.idUsers,
           publicationsId: publication.idPublications,
         });
       }
     })
+
     .then(() => {
-      // Find user of request in the table user_disliked
       return db.user_disliked.findOne({
         where: {
           usersId: user.idUsers,
@@ -84,12 +93,11 @@ exports.liked = (req, res) => {
         },
       });
     })
+
     .then((disliked) => {
-      // destroy disliked if present
       if (disliked) {
         disliked.destroy();
       }
-      // Find and count all dislikes of publication
       return db.user_disliked.findAndCountAll({
         where: { publicationsId: publication.idPublications },
       });
@@ -97,33 +105,42 @@ exports.liked = (req, res) => {
 
     .then((user_dislikedFindAndCountAll) => {
       countDisliked = user_dislikedFindAndCountAll;
-      // Find and count all likes of publication
       return db.user_liked.findAndCountAll({
         where: { publicationsId: publication.idPublications },
       });
     })
+
     .then((user_likedFindAndCountAll) => {
       countLiked = user_likedFindAndCountAll;
-      // Modify publication in the database
       return publication.update({
         dislikes: countDisliked.count,
         likes: countLiked.count,
       });
     })
-    // Return responses of server
+
     .then(() => {
       res.status(201).send({ message: "Liked rajouté" });
     });
 };
-/*
- * ********* Function : Create Disliked *********
+/**
+ * ********* Function : Create DisLiked *********
+ *
+ * -- Description : Permet la creation d'un like
+ *
+ * @params : req.body.id
+ * @params : JSON.stringify({"id":"54"});
+ *
+ * -- Resultat exemple :
+ *
+ * Dislike ajouté ou Dislike supprimé
  */
+
 exports.disliked = (req, res) => {
   const id = req.body.id;
 
-  // Find user in the database
   db.user
     .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+
     .then((userFind) => {
       user = userFind;
       if (!user) {
@@ -131,12 +148,12 @@ exports.disliked = (req, res) => {
           .status(401)
           .send({ message: err.message || "Utilisateur non trouvé " });
       } else {
-        // Find publication of request
         return db.publication.findOne({
           where: { idPublications: id },
         });
       }
     })
+
     .then((publicationFind) => {
       publication = publicationFind;
       if (!publication) {
@@ -144,7 +161,6 @@ exports.disliked = (req, res) => {
           message: "Publication : " + id + " non trouvé ",
         });
       } else {
-        // Find user of request in the table user_disliked
         return db.user_disliked.findOne({
           where: {
             usersId: user.idUsers,
@@ -153,34 +169,33 @@ exports.disliked = (req, res) => {
         });
       }
     })
+
     .then((userCheckPresence) => {
       if (userCheckPresence) {
         userCheckPresence.destroy();
-        // Find and count all dislikes of publication
         return db.user_disliked
           .findAndCountAll({
             where: { publicationsId: publication.idPublications },
           })
 
           .then((user_dislikedFindAndCountAll) => {
-            // Modify publication in the database
             return publication.update({
               dislikes: user_dislikedFindAndCountAll.count,
             });
           })
+
           .then(() => {
             res.status(200).send({ message: "Disliked supprimé " });
           });
       } else {
-        // Create new disliked
         return db.user_disliked.create({
           usersId: user.idUsers,
           publicationsId: publication.idPublications,
         });
       }
     })
+
     .then(() => {
-      // Find user of request in the table user_liked
       return db.user_liked.findOne({
         where: {
           usersId: user.idUsers,
@@ -188,12 +203,11 @@ exports.disliked = (req, res) => {
         },
       });
     })
+
     .then((liked) => {
-      // destroy disliked if present
       if (liked) {
         liked.destroy();
       }
-      // Find and count all dislikes of publication
       return db.user_disliked.findAndCountAll({
         where: { publicationsId: publication.idPublications },
       });
@@ -201,20 +215,19 @@ exports.disliked = (req, res) => {
 
     .then((user_dislikedFindAndCountAll) => {
       countDisliked = user_dislikedFindAndCountAll;
-      // Find and count all likes of publication
       return db.user_liked.findAndCountAll({
         where: { publicationsId: publication.idPublications },
       });
     })
+
     .then((user_likedFindAndCountAll) => {
       countLiked = user_likedFindAndCountAll;
-      // Modify publication in the database
       return publication.update({
         dislikes: countDisliked.count,
         likes: countLiked.count,
       });
     })
-    // Return responses of server
+
     .then(() => {
       res.status(201).send({ message: "Disliked rajouté" });
     });

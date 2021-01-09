@@ -56,10 +56,10 @@ import { AuthInterceptor } from './interceptors/auth-interceptor';
   imports: [
     BrowserModule,
     MatSliderModule,
-    MatFormFieldModule,
-    MatInputModule,
     BrowserAnimationsModule,
     LayoutModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatToolbarModule,
     MatButtonModule,
     MatSidenavModule,
