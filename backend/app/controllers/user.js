@@ -13,6 +13,7 @@ const userDecodedTokenId = require("../middleware/userDecodedTokenId.js");
 const htmlspecialchars = require("../middleware/htmlspecialchars.js");
 const passwordValidator = require("password-validator");
 const schemaSignup = require("../schema/schemaSignup.js");
+const schemaLogin = require("../schema/schemaLogin.js");
 /*
  * ********* Function : Schema of passwordValidator *********
  */
@@ -44,18 +45,23 @@ schema
 
 exports.signup = async (req, res) => {
   try {
-    const password = String(
-      bcrypt.hashSync(htmlspecialchars(req.body.password), 10)
-    );
     const user = {
       lastname: String(req.body.name),
       firstname: String(req.body.firstname),
       email: String(req.body.email),
-      password: password,
+      password: null,
     };
-    const isvalid = await schemaSignup.validateAsync(user);
-    if (!isvalid) {
-      return res.status(400).send({ message: "Erreur des données envoyée" });
+    if (!schema.validate(req.body.password)) {
+      return res.status(400).send({ message: "Le mot de passe est invalide" });
+    } else {
+      user.password = String(
+        bcrypt.hashSync(htmlspecialchars(req.body.password), 10)
+      );
+    }
+
+    const isValid = await schemaSignup.validateAsync(user);
+    if (!isValid) {
+      return res.status(400).send({ message: "Erreur des données envoyées" });
     } else {
       if (user.lastname.length >= 40 || user.lastname.length <= 1) {
         throw res
@@ -93,54 +99,58 @@ exports.signup = async (req, res) => {
     });
   }
 };
-/** 
- * ********* Function : login User *********
- * 
- *  -- Description : Permet la connection d'un utilisateur
- * 
- * @params : req.body.emails : exemple@groupomaina.fr
- * @params : req.body.passwords : mot de passe
- * 
- * -- Resultat exemple :
- * {
-    "userId": 180,
-    "admin": 1,
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjE4MCwiaWF0IjoxNjA5OTYwMjIwLCJleHAiOjE2MTAwNDY2MjB9.cA_KcgoUL9oNA3WRL1FrXiCH3M6_Ly3mtxAsUhFv0eg"
-}
- */
-exports.login = (req, res) => {
-  const password = String(htmlspecialchars(req.body.passwords));
-  const email = String(htmlspecialchars(req.body.emails));
 
-  db.user
-    .findOne({
-      where: {
-        emails: email,
-      },
-    })
-
-    .then((user) => {
-      bcrypt.compare(password, user.passwords).then((valid) => {
-        if (!valid) {
-          return res
-            .status(401)
-            .send({ message: "Mot de passe ou emails non trouvés " });
-        } else {
-          res.status(200).send({
-            userId: user.idUsers,
-            admin: user.role,
-            token: jwt.sign({ userId: user.idUsers }, config.secret, {
-              expiresIn: "24h",
-            }),
+exports.login = async (req, res) => {
+  try {
+    const user = {
+      password: null,
+      email: String(req.body.email),
+    };
+    if (!schema.validate(req.body.password)) {
+      return res
+        .status(400)
+        .send({ message: "Mot de passe ou email non invalide" });
+    } else {
+      user.password = String(htmlspecialchars(req.body.password));
+    }
+    const isValid = await schemaLogin.validateAsync(user);
+    if (!isValid) {
+      return res.status(400).send({ message: "Erreur des données envoyées" });
+    } else {
+      db.user
+        .findOne({
+          where: {
+            email: user.email,
+          },
+        })
+        .then((userFound) => {
+          bcrypt.compare(user.password, userFound.password).then((valid) => {
+            if (!valid) {
+              return res
+                .status(401)
+                .send({ message: "Mot de passe ou email non invalide " });
+            } else {
+              res.status(200).send({
+                userId: userFound.id,
+                admin: userFound.role,
+                token: jwt.sign({ userId: userFound.id }, config.secret, {
+                  expiresIn: "24h",
+                }),
+              });
+            }
           });
-        }
-      });
-    })
-    .catch(() => {
-      res.status(401).send({
-        message: "Mot de passe ou emails non trouvés ",
-      });
+        })
+        .catch(() => {
+          res.status(401).send({
+            message: "Mot de passe ou email non trouvé ",
+          });
+        });
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
 /**
  * ********* Function : GetOne User *********
