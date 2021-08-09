@@ -46,7 +46,7 @@ schema
 exports.signup = async (req, res) => {
   try {
     const user = {
-      lastname: String(req.body.name),
+      lastname: String(req.body.lastname),
       firstname: String(req.body.firstname),
       email: String(req.body.email),
       password: null,
@@ -177,17 +177,13 @@ exports.getOneUser = (req, res) => {
       });
     });
 };
-/**
- * ********* Function : GetAll User *********
- *
- *  -- Description : Permet l'affichage de tous les utilisateurs
- *
- */
+
 exports.getAllUsers = (req, res) => {
-  const allUsers = req.query.idUsers;
+  const allUsers = req.query.id;
+  const userId = Number(req.user.userId);
 
   db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+    .findOne({ where: { id: userId } })
 
     .then((user) => {
       if (!user) {
@@ -197,7 +193,7 @@ exports.getAllUsers = (req, res) => {
       }
       return db.user.findAll({
         where: allUsers,
-        attributes: ["idUsers", "names", "firstnames", "image", "emails"],
+        attributes: ["id", "lastname", "firstname", "image", "email"],
       });
     })
 
