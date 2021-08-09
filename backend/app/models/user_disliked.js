@@ -4,22 +4,22 @@ module.exports = (sequelize, Sequelize) => {
   const UserDisliked = sequelize.define(
     "user_disliked",
     {
-      usersId: {
+      userId: {
         type: Sequelize.SMALLINT,
         allowNull: false,
         primaryKey: true,
         references: {
           model: "user",
-          key: "idUsers",
+          key: "id",
         },
       },
-      publicationsId: {
+      publicationId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
         references: {
           model: "publication",
-          key: "idPublications",
+          key: "id",
         },
       },
     },
@@ -32,12 +32,12 @@ module.exports = (sequelize, Sequelize) => {
           name: "PRIMARY",
           unique: true,
           using: "BTREE",
-          fields: [{ name: "usersId" }, { name: "publicationsId" }],
+          fields: [{ name: "userId" }, { name: "publicationId" }],
         },
         {
           name: "fk_user_disliked_publication_idx",
           using: "BTREE",
-          fields: [{ name: "publicationsId" }],
+          fields: [{ name: "publicationId" }],
         },
       ],
     }

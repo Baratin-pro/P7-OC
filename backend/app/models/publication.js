@@ -4,25 +4,25 @@ module.exports = (sequelize, Sequelize) => {
   const Publication = sequelize.define(
     "publication",
     {
-      idPublications: {
+      id: {
         autoIncrement: true,
         type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
       },
-      titles: {
+      title: {
         type: Sequelize.STRING(100),
         allowNull: false,
       },
-      descriptions: {
+      description: {
         type: Sequelize.TEXT,
         allowNull: true,
       },
-      imagesUrl: {
+      imageUrl: {
         type: Sequelize.STRING(255),
         allowNull: false,
       },
-      publicationsDate: {
+      publicationDate: {
         type: Sequelize.DATE,
         allowNull: false,
       },
@@ -31,22 +31,22 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         defaultValue: 0,
       },
-      likes: {
+      like: {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0,
       },
-      dislikes: {
+      dislike: {
         type: Sequelize.INTEGER,
         allowNull: false,
         defaultValue: 0,
       },
-      usersId: {
+      userId: {
         type: Sequelize.SMALLINT,
         allowNull: false,
         references: {
           model: "user",
-          key: "idUsers",
+          key: "id",
         },
       },
     },
@@ -59,17 +59,17 @@ module.exports = (sequelize, Sequelize) => {
           name: "PRIMARY",
           unique: true,
           using: "BTREE",
-          fields: [{ name: "idPublications" }],
+          fields: [{ name: "id" }],
         },
         {
           name: "ordreDate",
           using: "BTREE",
-          fields: [{ name: "publicationsDate" }],
+          fields: [{ name: "publicationDate" }],
         },
         {
           name: "fk_publication_user_idx",
           using: "BTREE",
-          fields: [{ name: "usersId" }],
+          fields: [{ name: "userId" }],
         },
       ],
     }

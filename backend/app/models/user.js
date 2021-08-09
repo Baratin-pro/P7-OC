@@ -4,26 +4,26 @@ module.exports = (sequelize, Sequelize) => {
   const User = sequelize.define(
     "user",
     {
-      idUsers: {
+      id: {
         autoIncrement: true,
         type: Sequelize.SMALLINT,
         allowNull: false,
         primaryKey: true,
       },
-      names: {
+      lastname: {
         type: Sequelize.STRING(100),
         allowNull: false,
       },
-      firstnames: {
+      firstname: {
         type: Sequelize.STRING(100),
         allowNull: false,
       },
-      emails: {
+      email: {
         type: Sequelize.STRING(100),
         allowNull: false,
         unique: "email_UNIQUE",
       },
-      passwords: {
+      password: {
         type: Sequelize.STRING(100),
         allowNull: false,
       },
@@ -47,13 +47,13 @@ module.exports = (sequelize, Sequelize) => {
           name: "PRIMARY",
           unique: true,
           using: "BTREE",
-          fields: [{ name: "idUsers" }],
+          fields: [{ name: "id" }],
         },
         {
           name: "email_UNIQUE",
           unique: true,
           using: "BTREE",
-          fields: [{ name: "emails" }],
+          fields: [{ name: "email" }],
         },
       ],
     }

@@ -31,13 +31,9 @@ db.sequelize = sequelize;
  */
 //User
 db.user = require("./user.js")(sequelize, Sequelize);
-//Publication
 db.publication = require("./publication.js")(sequelize, Sequelize);
-//Comment
 db.comment = require("./comment.js")(sequelize, Sequelize);
-//User_disliked
 db.user_disliked = require("./user_disliked")(sequelize, Sequelize);
-//User_liked
 db.user_liked = require("./user_liked")(sequelize, Sequelize);
 /*
  * ********* Association : User *********

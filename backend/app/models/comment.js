@@ -4,30 +4,30 @@ module.exports = (sequelize, Sequelize) => {
   const Comment = sequelize.define(
     "comment",
     {
-      idComments: {
+      id: {
         autoIncrement: true,
         type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
       },
-      comments: {
+      comment: {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      publicationsId: {
+      publicationId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: "publication",
-          key: "idPublications",
+          key: "id",
         },
       },
-      usersId: {
+      userId: {
         type: Sequelize.SMALLINT,
         allowNull: false,
         references: {
           model: "user",
-          key: "idUsers",
+          key: "id",
         },
       },
     },
@@ -40,17 +40,17 @@ module.exports = (sequelize, Sequelize) => {
           name: "PRIMARY",
           unique: true,
           using: "BTREE",
-          fields: [{ name: "idComments" }],
+          fields: [{ name: "id" }],
         },
         {
           name: "fk_comment_publication_idx",
           using: "BTREE",
-          fields: [{ name: "publicationsId" }],
+          fields: [{ name: "publicationId" }],
         },
         {
           name: "fk_comment_user_idx",
           using: "BTREE",
-          fields: [{ name: "usersId" }],
+          fields: [{ name: "userId" }],
         },
       ],
     }

@@ -28,7 +28,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 //Sync database
 const db = require("./models");
-db.sequelize.sync();
+db.sequelize.sync({ force: true });
 // image path on the server
 app.use("/images", express.static(path.join(__dirname, "images")));
 //Router
