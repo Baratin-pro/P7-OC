@@ -1,10 +1,6 @@
 "use strict";
 
 module.exports = {
-  HOST: "",
-  USER: "",
-  PASSWORD: "",
-  DB: "groupomania",
   dialect: "mysql",
   pool: {
     max: 5,

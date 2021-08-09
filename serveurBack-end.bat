@@ -1,6 +1,6 @@
 Rem Démarrage Serveur backend 
 
-CD back
+CD backend
 
-CALL nodemon server
+CALL nodemon 
 

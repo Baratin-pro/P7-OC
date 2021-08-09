@@ -1,16 +1,16 @@
 Rem installation de node_module dans le dossier back-end
 
-CD back
+CD backend
 
 CALL npm install
-CALL npm install nodemon
+CALL npm i nodemon
 
 Rem installation de node_module et d'Angular dans le dossier frontend
 
 CD ../frontend/groupomania
 
 CALL npm install
-CALL npm install @angular/cli
+CALL npm i @angular/cli
 
 Rem Supression du fichier installation.bat
 
