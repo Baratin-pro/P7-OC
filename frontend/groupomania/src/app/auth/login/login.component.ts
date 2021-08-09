@@ -54,22 +54,22 @@ export class LoginComponent implements OnInit {
     // Récupération des valeurs 
 
     const userValue = {
-      emails: this.loginForm.get('emails').value,
-      passwords: this.loginForm.get('passwords').value,
+      email: this.loginForm.get('emails').value,
+      password: this.loginForm.get('passwords').value,
     }
 
     // Préparation de la requête en transformant les données saisis de l'utilisateur 
 
     const userLogin = new User(
-      userValue.passwords,
+      userValue.password,
       null,
       null,
-      userValue.emails,
+      userValue.email,
     )
 
     // Envoie de la requête au serveur via la route API login
 
-    this.authService.loginUser(userLogin.emails, userLogin.passwords)
+    this.authService.loginUser(userLogin.email, userLogin.password)
       .subscribe(() => {
         this.isAuth$.next(true);
         this.router.navigate(['/accueil']);

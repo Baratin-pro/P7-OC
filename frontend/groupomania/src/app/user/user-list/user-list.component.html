@@ -2,13 +2,14 @@
 <p *ngIf="!loading && users.length <= 0">
   Aucun utilisateur inscrit
 </p>
-<section class="userList"  *ngIf="!loading && users.length > 0">
+<section class="userList" *ngIf="!loading && users.length > 0">
   <h2 class="userList_title">Liste des membres de Groupomania</h2>
   <mat-card class="userList_card" *ngFor="let user of users">
     <mat-card-header class="userList_card_container">
       <div mat-card-avatar class="userList_card_container_img" style="background-image: url({{user.image}});"></div>
-      <mat-card-title class="userList_card_container_title">{{user.names}} {{user.firstnames}} </mat-card-title>
-      <mat-card-subtitle><a class="userList_card_container_link" href="mailto:{{user.emails}}">{{user.emails}}</a></mat-card-subtitle>
+      <mat-card-title class="userList_card_container_title">{{user.name}} {{user.firstname}} </mat-card-title>
+      <mat-card-subtitle><a class="userList_card_container_link" href="mailto:{{user.emails}}">{{user.email}}</a>
+      </mat-card-subtitle>
     </mat-card-header>
     <div>
       <button class="userList_card_btn" mat-icon-button [matMenuTriggerFor]="menu" aria-label="icon a menu"
@@ -21,5 +22,3 @@
     </div>
   </mat-card>
 </section>
-
-

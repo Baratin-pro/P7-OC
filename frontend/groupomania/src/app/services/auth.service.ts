@@ -43,8 +43,8 @@ export class AuthService {
 
   // Function: Login user
 
-  loginUser(emails: string, passwords): any {
-    return this.http.post(this.urlUser + '/login', { emails, passwords })
+  loginUser(email: string, password): any {
+    return this.http.post(this.urlUser + '/login', { email, password })
       .pipe(
         tap((response: { userId: string, token: string, admin: number }) => {
           this.userId = response.userId;

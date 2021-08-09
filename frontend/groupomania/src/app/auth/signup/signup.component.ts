@@ -61,19 +61,19 @@ export class SignupComponent implements OnInit {
     // Récupération des valeurs 
 
     const userValue = {
-      emails: this.signupForm.get('emails').value,
-      passwords: this.signupForm.get('passwords').value,
-      firstnames: this.signupForm.get('firstnames').value,
-      names: this.signupForm.get('names').value
+      email: this.signupForm.get('emails').value,
+      password: this.signupForm.get('passwords').value,
+      firstname: this.signupForm.get('firstnames').value,
+      name: this.signupForm.get('names').value
     }
 
     // Préparation de la requête en transformant les données saisis de l'utilisateur
 
     const newUser = new User(
-      userValue.passwords,
-      userValue.names,
-      userValue.firstnames,
-      userValue.emails
+      userValue.password,
+      userValue.name,
+      userValue.firstname,
+      userValue.email
     )
 
     /* 
@@ -83,7 +83,7 @@ export class SignupComponent implements OnInit {
     this.authService.createUser(newUser)
       .subscribe(
         () => {
-          this.authService.loginUser(newUser.emails, newUser.passwords)
+          this.authService.loginUser(newUser.email, newUser.password)
             .subscribe(() => {
               this.isAuth$.next(true);
               this.router.navigate(['/accueil']);

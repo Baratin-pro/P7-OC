@@ -208,27 +208,12 @@ exports.getAllUsers = (req, res) => {
     });
 };
 
-/** 
- * ********* Function : update Image User *********
- * 
- *-- Description : Permet la modification de l'image de l'utilisateur du token
-
- * @params : new FormData(); 
- * @params : data.append("image", fileInput.files[0], "/path/to/file");
- * 
- * -- Resultat exemple :
- * 
- * {
- *  "image": "http://localhost:3000/images/44908592981609749963981.jpg",
- * }
- *  
- */
 exports.updateUserImage = (req, res) => {
+  const userId = Number(req.user.userId);
   db.user
     .findOne({
-      where: { idUsers: userDecodedTokenId(req) },
+      where: { id: userId },
     })
-
     .then((user) => {
       if (!user) {
         res.status(401).send({

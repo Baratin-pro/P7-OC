@@ -7,7 +7,7 @@ let router = require("express").Router();
 module.exports = (app) => {
   //Router
   router.post("/signup", userCtrl.signup);
-  router.post("/login", userCtrl.limiter, userCtrl.login);
+  router.post("/login", /*userCtrl.limiter,*/ userCtrl.login);
   router.get("/profil", auth, userCtrl.getOneUser);
   router.get("", auth, userCtrl.getAllUsers);
   router.delete("/:id", auth, userCtrl.deleteUser);
