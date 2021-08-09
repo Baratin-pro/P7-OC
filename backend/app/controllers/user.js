@@ -247,58 +247,33 @@ exports.updateUserImage = (req, res) => {
       });
     });
 };
-/**
- * ********* Function : Delete User *********
- *
- * -- Description : Permet la suppression de l'utilisateur cible, qu'ainsi ses commentaires, ses like, ses dislike, ses publications
- *
- * @params : req.params.id
- *
- * -- Resultat exemple :
- *
- * Utilisateur supprimé
- */
+
 exports.deleteUser = (req, res) => {
-  const id = req.params.id;
+  const userId = Number(req.user.userId);
+  const id = Number(req.params.id);
   let publication;
   let user;
-  let userAuth;
-
   db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
+    .findOne({ where: { id: userId } })
 
-    .then((userFindAuth) => {
-      userAuth = userFindAuth;
-
-      if (userAuth.idUsers == id || userAuth.role == 1) {
-        return db.user.findOne({ where: { idUsers: id } });
+    .then((userAuth) => {
+      if (userAuth.id === id || userAuth.role === 1) {
+        return db.user.findOne({ where: { id: id } });
       } else {
-        throw res.status(403).send({ message: "Condition non respectée " });
+        return res.status(403).send({ message: "Condition non respectée " });
       }
     })
-
     .then((userFind) => {
       user = userFind;
-
-      return db.comment.destroy({ where: { usersId: id } });
+      db.comment.destroy({ where: { id: id } });
+      db.user_liked.destroy({ where: { id: id } });
+      db.user_disliked.destroy({ where: { id: id } });
+      return db.publication.findAll({ where: { id: id } });
     })
-
-    .then(() => {
-      return db.user_liked.destroy({ where: { usersId: id } });
-    })
-
-    .then(() => {
-      return db.user_disliked.destroy({ where: { usersId: id } });
-    })
-
-    .then(() => {
-      return db.publication.findAll({ where: { usersId: id } });
-    })
-
     .then((publicationFind) => {
       publication = publicationFind;
       if (!publication) {
-        if (user.idUsers != id) {
+        if (user.id != id) {
           res.status(404).send({ message: "User non trouvé !" });
         }
         if (user.image != "http://localhost:3000/images/avatarDefault.jpg") {
@@ -311,12 +286,10 @@ exports.deleteUser = (req, res) => {
             }
           });
         }
-
-        db.user.destroy({ where: { idUsers: id } });
+        db.user.destroy({ where: { id: id } });
         return res.status(200).send({ message: "User supprimé !" });
       }
     })
-
     .then(() => {
       for (let i = 0; i < publication.length; i++) {
         if (publication[i].imagesUrl) {
@@ -330,22 +303,14 @@ exports.deleteUser = (req, res) => {
             }
           });
         }
-
-        db.comment.destroy({
-          where: { publicationsId: publication[i].idPublications },
-        });
-
-        db.user_liked.destroy({
-          where: { publicationsId: publication[i].idPublications },
-        });
-
+        db.comment.destroy({ where: { publicationsId: publication[i].id } });
+        db.user_liked.destroy({ where: { publicationsId: publication[i].id } });
         db.user_disliked.destroy({
-          where: { publicationsId: publication[i].idPublications },
+          where: { publicationsId: publication[i].id },
         });
       }
-      return db.publication.destroy({ where: { usersId: id } });
+      return db.publication.destroy({ where: { id: id } });
     })
-
     .then(() => {
       if (user.image != "http://localhost:3000/images/avatarDefault.jpg") {
         const filename = user.image.split("/images/")[1];
@@ -357,9 +322,8 @@ exports.deleteUser = (req, res) => {
           }
         });
       }
-      return db.user.destroy({ where: { idUsers: id } });
+      return db.user.destroy({ where: { id: id } });
     })
-
     .then((userDestroy) => {
       if (!userDestroy) {
         return res.status(404).send({ message: "User id:" + id });
@@ -367,7 +331,6 @@ exports.deleteUser = (req, res) => {
         return res.status(200).send({ message: "User supprimé !" });
       }
     })
-
     .catch((err) => {
       res.status(500).send({
         message: err.message,
