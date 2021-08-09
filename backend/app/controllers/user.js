@@ -152,27 +152,13 @@ exports.login = async (req, res) => {
     });
   }
 };
-/**
- * ********* Function : GetOne User *********
- *
- * -- Description : Permet l'affichage de l'utilisateur du token
- *
- * -- Resultat exemple :
- *
- * {
- *   "idUsers": 180,
- *   "emails": "louis@14.fr",
- *   "names": "Versaille",
- *   "firstnames": "Louis",
- *   "image": "http://localhost:3000/images/44908592981609749963981.jpg"
- * }
- *
- */
+
 exports.getOneUser = (req, res) => {
+  const userId = Number(req.user.userId);
   db.user
     .findOne({
-      where: { idUsers: userDecodedTokenId(req) },
-      attributes: ["idUsers", "emails", "names", "firstnames", "image"],
+      where: { id: userId },
+      attributes: ["id", "email", "lastname", "firstname", "image"],
     })
 
     .then((user) => {
