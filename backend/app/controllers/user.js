@@ -12,7 +12,7 @@ const config = require("../config/auth.config.js");
 const userDecodedTokenId = require("../middleware/userDecodedTokenId.js");
 const htmlspecialchars = require("../middleware/htmlspecialchars.js");
 const passwordValidator = require("password-validator");
-const regex = require("../middleware/regex.js");
+const schemaSignup = require("../schema/schemaSignup.js");
 /*
  * ********* Function : Schema of passwordValidator *********
  */
@@ -25,7 +25,7 @@ schema
   .min(8)
   // Maximum length 100
   .is()
-  .max(100)
+  .max(32)
   // Must have uppercase letters
   .has()
   .uppercase()
@@ -41,81 +41,57 @@ schema
   .spaces()
   //Not regex
   .not(/[&><"'=/!£$]/);
-/**
- * ********* Function : create User *********
- *
- * -- Description : Permet la creation d'un utilisateur
- *
- * @params : req.body.names : Martin
- * @params : req.body.firstnames : Paul
- * @params : req.body.emails : exemple@groupomaina.fr
- * @params : req.body.passwords : mot de passe
- * @params : JSON.stringify({"names":"Martin","firstnames":"Paul","emails":"exemple@groupomaina.fr","passwords":"mot de passe"});
- *
- * -- Resultat exemple :
- *
- * {
- *   "names": "Martin",
- *   "firstnames": "Paul",
- *   "emails": "exemple@groupomaina.fr",
- *   "passwords": "$2y$10$t.TewPPS5gMfnCRpu24BeOPVp6xp0/S90G0Tc3JAVZ3r2bh2C7EFu"
- * }
- *
- */
-exports.signup = (req, res) => {
-  if (!regex.namesAndFirstnameRegex.test(req.body.names)) {
-    throw res.status(400).send({ message: "Le nom est invalide" });
-  }
-  if (!regex.namesAndFirstnameRegex.test(req.body.firstnames)) {
-    throw res.status(400).send({ message: "Le prénom est invalide" });
-  }
-  if (!regex.emailRegex.test(req.body.emails)) {
-    throw res.status(400).send({ message: "L'email est invalide" });
-  }
-  if (!schema.validate(req.body.passwords)) {
-    throw res.status(400).send({ message: "Le mot de passe est invalide" });
-  }
 
-  const password = htmlspecialchars(req.body.passwords);
-  const user = {
-    names: String(htmlspecialchars(req.body.names)),
-    firstnames: String(htmlspecialchars(req.body.firstnames)),
-    emails: String(htmlspecialchars(req.body.emails)),
-    passwords: String(bcrypt.hashSync(password, 10)),
-  };
+exports.signup = async (req, res) => {
+  try {
+    const password = String(
+      bcrypt.hashSync(htmlspecialchars(req.body.password), 10)
+    );
+    const user = {
+      lastname: String(req.body.name),
+      firstname: String(req.body.firstname),
+      email: String(req.body.email),
+      password: password,
+    };
+    const isvalid = await schemaSignup.validateAsync(user);
+    if (!isvalid) {
+      return res.status(400).send({ message: "Erreur des données envoyée" });
+    } else {
+      if (user.lastname.length >= 40 || user.lastname.length <= 1) {
+        throw res
+          .status(400)
+          .send({ message: "Le nom doit comprendre entre 2 et 40 lettres" });
+      }
 
-  if (
-    user.names == null ||
-    user.firstnames == null ||
-    user.emails == null ||
-    password == null
-  ) {
-    throw res.status(400).send({ message: "Paramètre absent!" });
-  }
+      if (user.firstname.length >= 40 || user.firstname.length <= 1) {
+        throw res
+          .status(400)
+          .send({ message: "Le prénom doit comprendre entre 2 et 40 lettres" });
+      }
+      const userFound = await db.user.findOne({ where: { email: user.email } });
+      if (userFound) {
+        return res
+          .status(403)
+          .send({ message: "Cette adresse mail est déjà utilisée" });
+      } else {
+        db.user
+          .create(user)
+          .then(() => {
+            res.status(201).send({ message: "Utilisateur créé avec succes" });
+          })
 
-  if (user.names.length >= 40 || user.names.length <= 1) {
-    throw res
-      .status(400)
-      .send({ message: "Le nom doit comprendre entre 2 et 40 lettres" });
-  }
-
-  if (user.firstnames.length >= 40 || user.firstnames.length <= 1) {
-    throw res
-      .status(400)
-      .send({ message: "Le prénom doit comprendre entre 2 et 40 lettres" });
-  }
-
-  db.user
-    .create(user)
-    .then(() => {
-      res.status(201).send({ message: "Utilisateur créé avec succes" });
-    })
-
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message,
-      });
+          .catch((err) => {
+            res.status(500).send({
+              message: err.message,
+            });
+          });
+      }
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
 /** 
  * ********* Function : login User *********
