@@ -2,14 +2,12 @@
 
 //Way to model
 const db = require("../models");
-const rateLimit = require("express-rate-limit");
 const Op = db.Sequelize.Op;
 //Protect
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const fs = require("fs");
 const config = require("../config/auth.config.js");
-const userDecodedTokenId = require("../middleware/userDecodedTokenId.js");
 const htmlspecialchars = require("../middleware/htmlspecialchars.js");
 const passwordValidator = require("password-validator");
 const schemaSignup = require("../schema/schemaSignup.js");
@@ -337,11 +335,3 @@ exports.deleteUser = (req, res) => {
       });
     });
 };
-
-/*
- * ********* Function : Limit request number *********
- */
-exports.limiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 3,
-});
