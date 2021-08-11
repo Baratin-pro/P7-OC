@@ -40,38 +40,38 @@ db.user_liked = require("./user_liked")(sequelize, Sequelize);
  */
 //User <--> Publication
 db.user.hasMany(db.publication, {
-  foreignKey: "usersId",
+  foreignKey: "userId",
   as: "publication",
 });
 db.publication.belongsTo(db.user, {
-  foreignKey: "usersId",
+  foreignKey: "userId",
   as: "user",
 });
 //User <--> Comment
 db.user.hasMany(db.comment, {
-  foreignKey: "usersId",
+  foreignKey: "userId",
   as: "comment",
 });
 db.comment.belongsTo(db.user, {
-  foreignKey: "usersId",
+  foreignKey: "userId",
   as: "user",
 });
 //User <--> user_disliked
 db.user.hasMany(db.user_disliked, {
-  foreignKey: "usersId",
+  foreignKey: "userId",
   as: "user_disliked",
 });
 db.user_disliked.belongsTo(db.user, {
-  foreignKey: "usersId",
+  foreignKey: "userId",
   as: "user_disliked",
 });
 //User <--> user_liked
 db.user.hasMany(db.user_liked, {
-  foreignKey: "usersId",
+  foreignKey: "userId",
   as: "user_liked",
 });
 db.user_liked.belongsTo(db.user, {
-  foreignKey: "usersId",
+  foreignKey: "userId",
   as: "user_liked",
 });
 /*
@@ -79,29 +79,29 @@ db.user_liked.belongsTo(db.user, {
  */
 //Publication <--> Comment
 db.publication.hasMany(db.comment, {
-  foreignKey: "publicationsId",
+  foreignKey: "publicationId",
   as: "comment",
 });
 db.comment.belongsTo(db.publication, {
-  foreignKey: "publicationsId",
+  foreignKey: "publicationId",
   as: "publication",
 });
 //Publication <--> user_disliked
 db.publication.hasMany(db.user_disliked, {
-  foreignKey: "publicationsId",
+  foreignKey: "publicationId",
   as: "publication_disliked",
 });
 db.user_disliked.belongsTo(db.publication, {
-  foreignKey: "publicationsId",
+  foreignKey: "publicationId",
   as: "publication_disliked",
 });
 //Publication <--> user_liked
 db.publication.hasMany(db.user_liked, {
-  foreignKey: "publicationsId",
+  foreignKey: "publicationId",
   as: "publication_liked",
 });
 db.user_liked.belongsTo(db.publication, {
-  foreignKey: "publicationsId",
+  foreignKey: "publicationId",
   as: "publication_liked",
 });
 

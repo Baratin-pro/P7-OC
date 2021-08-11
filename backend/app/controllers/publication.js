@@ -2,63 +2,51 @@
 
 //Way to model
 const db = require("../models");
-const Op = db.Sequelize.Op;
 //Protect
 const fs = require("fs");
 const userDecodedTokenId = require("../middleware/userDecodedTokenId.js");
 const validator = require("validator");
+const schemaPostCreate = require("../schema/schemaPostCreate.js");
 
-let user;
-let publication;
-
-/**
- * ********* Function : Create Publication *********
- *
- * -- Description : Permet la creation d'une publication
- *
- * @params : new FormData();
- * @params : data.append("titles", "titre de la publication");
- * @params : data.append("descriptions", "description de celle-ci");
- * @params : data.append("image", fileInput.files[0], "/C:/xxx/xxx/xxx/img/21326360.jpg");
- *
- * -- Resultat exemple :
- *
- * Publication créée
- *
- */
-
-exports.createPublication = (req, res) => {
-  db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-
-    .then((user) => {
-      if (!user) {
-        res.status(401).send({
-          message: err.message || "Utilisateur non trouvé ",
-        });
-      }
-      const image = `${req.protocol}://${req.get("host")}/images/${
-        req.file.filename
-      }`;
-      const publication = {
-        titles: String(req.body.titles),
-        descriptions: String(req.body.descriptions),
-        imagesUrl: image,
-        publicationsDate: new Date(),
-        usersId: user.idUsers,
-      };
-      return db.publication.create(publication);
-    })
-
-    .then(() => {
-      res.status(201).send({ message: "Publication créé avec succes" });
-    })
-
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message,
+exports.createPublication = async (req, res) => {
+  try {
+    const userId = Number(req.user.userId);
+    const userFound = await db.user.findOne({ where: { id: userId } });
+    if (!userFound) {
+      res.status(401).send({
+        message: err.message || "Utilisateur non trouvé ",
       });
+    } else {
+      const publication = {
+        title: String(req.body.title),
+        description: String(req.body.description),
+        imageUrl: String(
+          `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
+        ),
+        publicationDate: new Date(),
+        userId: userFound.id,
+      };
+      const isValid = await schemaPostCreate.validateAsync(publication);
+      if (!isValid) {
+        return res.status(400).send({ message: "Erreur des données envoyées" });
+      } else {
+        db.publication
+          .create(publication)
+          .then(() => {
+            res.status(201).send({ message: "Publication créée avec succes" });
+          })
+          .catch((err) => {
+            res.status(500).send({
+              message: err.message,
+            });
+          });
+      }
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
 
 /**
