@@ -49,87 +49,61 @@ exports.createPublication = async (req, res) => {
   }
 };
 
-/**
- * ********* Function : Get One Publication *********
- *
- *
- * -- Description : Permet la récupération des commentaires de la publication cible
- *
- * @params : req.params.id
- *
- * -- Resultat exemple :
- *
- * {
- * "idPublications": 76,
- * "titles": "titre de la publication",
- * "descriptions": "description de la publication",
- * "imagesUrl": "http://localhost:3000/images/78432148211609946509734.jpg",
- * "publicationsDate": "2021-01-06T15:21:49.000Z",
- * "commentCount": 0,
- * "likes": 0,
- * "dislikes": 0,
- * "usersId": 180,
- * "comment": [],
- * "user": {
- *     "names": "Versaille",
- *     "firstnames": "Louis",
- *     "image": "http://localhost:3000/images/44908592981609749963981.jpg",
- *    "idUsers": 180
- * }
- * }
- */
-
-exports.getOnePublication = (req, res) => {
-  const id = req.params.id;
-  db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-
-    .then((user) => {
-      if (!user) {
-        res.status(401).send({
-          message: err.message || "Utilisateur non trouvé ",
-        });
-      }
-      return db.publication.findOne({
-        where: { idPublications: id },
-        include: [
-          {
-            model: db.comment,
-            as: "comment",
-            attributes: { exclude: ["usersId"] },
-            include: {
+exports.getOnePublication = async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const userId = Number(req.user.userId);
+    const user = await db.user.findOne({ where: { id: userId } });
+    if (!user) {
+      res
+        .status(401)
+        .send({ message: err.message || "Utilisateur non trouvé " });
+    } else {
+      db.publication
+        .findOne({
+          where: { id: id },
+          include: [
+            {
+              model: db.comment,
+              as: "comment",
+              attributes: { exclude: ["userId"] },
+              include: {
+                model: db.user,
+                as: "user",
+                attributes: ["lastname", "firstname", "image"],
+              },
+            },
+            {
               model: db.user,
               as: "user",
-              attributes: ["names", "firstnames", "image"],
+              attributes: ["lastname", "firstname", "image", "id"],
             },
-          },
-          {
-            model: db.user,
-            as: "user",
-            attributes: ["names", "firstnames", "image", "idUsers"],
-          },
-        ],
-      });
-    })
-
-    .then((publication) => {
-      if (!publication) {
-        return res.status(404).send({
-          message:
-            "Une erreur s'est produite lors de la récupération de User avec l'id :" +
-            id,
+          ],
+        })
+        .then((publication) => {
+          if (!publication) {
+            return res.status(404).send({
+              message:
+                "Une erreur s'est produite lors de la récupération de User avec l'id :" +
+                id,
+            });
+          } else {
+            return res.status(200).send(publication);
+          }
+        })
+        .catch((err) => {
+          res.status(500).send({
+            message: err.message,
+          });
         });
-      } else {
-        return res.status(200).send(publication);
-      }
-    })
-
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message,
-      });
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
+
 /**
  * ********* Function : Get All Publication *********
  *
