@@ -60,60 +60,48 @@ exports.createComment = async (req, res) => {
   }
 };
 
-/**
- * ********* Function : Get One Comment *********
- *
- * -- Description : Permet la récupération d'un commentaire
- *
- * @params : req.params.id
- *
- * -- Resultat exemple :
- *
- * "comments" : "Ceci est un commentaire"
- * "idComments" : 12
- *
- */
-
-exports.getComment = (req, res) => {
-  const idComment = req.params.id;
-
-  db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-
-    .then((user) => {
-      if (!user) {
-        res.status(401).send({
-          message: err.message || "Utilisateur non trouvé ",
-        });
-      }
-      return db.comment.findOne({
-        where: {
-          idComments: idComment,
-          usersId: userDecodedTokenId(req),
-        },
-        attributes: ["comments", "idComments"],
+exports.getComment = async (req, res) => {
+  try {
+    const userId = Number(req.user.userId);
+    const idComment = Number(req.params.id);
+    const user = await db.user.findOne({ where: { id: userId } });
+    if (!user) {
+      res.status(401).send({
+        message: err.message || "Utilisateur non trouvé ",
       });
-    })
-
-    .then((comment) => {
-      if (!comment) {
-        return res.status(404).send({
-          message:
-            "Une erreur s'est produite lors de la récupération de la publication avec l'id :" +
-            idComment,
+    } else {
+      db.comment
+        .findOne({
+          where: {
+            id: idComment,
+            userId: userId,
+          },
+          attributes: ["comment", "id"],
+        })
+        .then((comment) => {
+          if (!comment) {
+            return res.status(404).send({
+              message:
+                "Une erreur s'est produit lors de la récupération du commentaire avec l'id :" +
+                idComment,
+            });
+          } else {
+            return res.status(200).send(comment);
+          }
+        })
+        .catch((err) => {
+          res.status(500).send({
+            message:
+              err.message ||
+              "Une erreur s'est produit lors de la récupération du commentaire",
+          });
         });
-      } else {
-        return res.status(200).send(comment);
-      }
-    })
-
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message ||
-          "Une erreur s'est produit lors de la création du commentaire",
-      });
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
 
 /**
