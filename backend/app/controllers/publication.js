@@ -219,72 +219,54 @@ exports.updatePublication = async (req, res) => {
     });
   }
 };
-/**
- * ********* Function : Delete Publication *********
- *
- * -- Description : Permet la suppression de la publication
- *
- * @params : req.params.id
- *
- * -- Resultat exemple :
- *
- *  Publication supprimée
- *
- */
-exports.deleteOnePublication = (req, res) => {
-  const id = req.params.id;
 
-  db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-    .then((userFind) => {
-      user = userFind;
-      if (!user) {
-        res.status(401).send({
-          message: err.message || "Utilisateur non trouvé ",
+exports.deleteOnePublication = async (req, res) => {
+  try {
+    const userId = Number(req.user.userId);
+    const id = Number(req.params.id);
+    const user = await db.user.findOne({ where: { id: userId } });
+    const publication = await db.publication.findOne({ where: { id: id } });
+
+    if (!user) {
+      res
+        .status(401)
+        .send({ message: err.message || "Utilisateur non trouvé " });
+    }
+    if (!publication) {
+      res
+        .status(401)
+        .send({ message: err.message || "Publication non trouvé " });
+    }
+    if (publication.userId === user.id || user.role == 1) {
+      db.comment
+        .destroy({ where: { publicationId: id } })
+        .then(() => {
+          return db.user_liked.destroy({ where: { publicationId: id } });
+        })
+        .then(() => {
+          return db.user_disliked.destroy({ where: { publicationId: id } });
+        })
+        .then(() => {
+          const filename = publication.imageUrl.split("/images/")[1];
+          fs.unlink(`app/images/${filename}`, (err) => {
+            return err ? console.log(err) : console.log("image supprimée !");
+          });
+          return publication.destroy({ where: { id: id } });
+        })
+        .then(() => {
+          res.status(200).send({ message: "Publication supprimée !" });
+        })
+        .catch((err) => {
+          res.status(500).send({
+            message: err.message,
+          });
         });
-      }
-      return db.publication.findOne({
-        where: { idPublications: id },
-      });
-    })
-
-    .then((publicationFind) => {
-      publication = publicationFind;
-      if (publication.usersId === user.idUsers || user.role == 1) {
-        n;
-        return db.comment.destroy({ where: { publicationsId: id } });
-      } else {
-        throw res.status(403).send({ message: "Condition non respectée " });
-      }
-    })
-
-    .then(() => {
-      return db.user_liked.destroy({ where: { publicationsId: id } });
-    })
-
-    .then(() => {
-      return db.user_disliked.destroy({ where: { publicationsId: id } });
-    })
-
-    .then(() => {
-      const filename = publication.imagesUrl.split("/images/")[1];
-      fs.unlink(`app/images/${filename}`, (err) => {
-        if (err) {
-          return console.log(err);
-        } else {
-          console.log("image supprimée !");
-        }
-      });
-      return publication.destroy({ where: { idPublications: id } });
-    })
-
-    .then(() => {
-      res.status(200).send({ message: "Publication supprimée !" });
-    })
-
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message,
-      });
+    } else {
+      return res.status(403).send({ message: "Condition non respectée " });
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
