@@ -1,86 +1,63 @@
 "use strict";
 
-//Way to model
 const db = require("../models");
-const Op = db.Sequelize.Op;
-//Protect
 const validator = require("validator");
-const userDecodedTokenId = require("../middleware/userDecodedTokenId.js");
+const schemaCommentCreate = require("../schema/schemaCommentCreate.js");
 
-/**
- * ********* Function : Create Comment *********
- *
- * -- Description : Permet la creation d'un commentaire
- *
- * @params : req.body.comments
- * @params : req.body.publicationsId
- * @params : JSON.stringify({"comments":"Ceci est un commentaire ","publicationsId":"76"});
- *
- * -- Resultat exemple :
- *
- * "comments" :"Ceci est un commentaire";
- * "publicationsId" : "54";
- */
-
-exports.createComment = (req, res) => {
-  let publication;
-
-  if (!req.body.comments) {
-    return res.status(400).send({ message: "Paramètre absent" });
-  }
-
-  db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-
-    .then((user) => {
-      if (!user) {
-        res.status(401).send({
-          message: err.message || "Utilisateur non trouvé ",
-        });
-      }
-      const newComment = {
-        usersId: user.idUsers,
-        comments: String(req.body.comments),
-        publicationsId: req.body.publicationsId,
+exports.createComment = async (req, res) => {
+  try {
+    const userId = Number(req.user.userId);
+    const user = await db.user.findOne({ where: { id: userId } });
+    let publication = null;
+    if (!user) {
+      res.status(401).send({
+        message: err.message || "Utilisateur non trouvé ",
+      });
+    } else {
+      const comment = {
+        userId: Number(user.id),
+        comment: String(req.body.comment),
+        publicationId: Number(req.body.id),
       };
-      if (!newComment) {
-        res.status(400).send({ message: "Commentaire absent !" });
+      const isValid = await schemaCommentCreate.validateAsync(comment);
+      if (!isValid) {
+        return res.status(400).send({ message: "Erreur des données envoyées" });
+      } else {
+        db.comment
+          .create(comment)
+          .then((createComment) => {
+            return db.publication.findOne({
+              where: { id: createComment.publicationId },
+            });
+          })
+          .then((publicationFind) => {
+            publication = publicationFind;
+            return db.comment.findAndCountAll({
+              where: { publicationId: publication.id },
+            });
+          })
+          .then((countCommment) => {
+            return publication.update({ commentCount: countCommment.count });
+          })
+
+          .then(() => {
+            res.status(201).send({ message: "Commentaire créé avec succes" });
+          })
+
+          .catch((err) => {
+            res.status(500).send({
+              message:
+                err.message ||
+                "Une erreur s'est produit lors de la création du commentaire",
+            });
+          });
       }
-      return newComment;
-    })
-
-    .then((newComment) => {
-      return db.comment.create(newComment);
-    })
-
-    .then((createComment) => {
-      return db.publication.findOne({
-        where: { idPublications: createComment.publicationsId },
-      });
-    })
-
-    .then((publicationFind) => {
-      publication = publicationFind;
-      return db.comment.findAndCountAll({
-        where: { publicationsId: publication.idPublications },
-      });
-    })
-
-    .then((countCommment) => {
-      return publication.update({ commentCount: countCommment.count });
-    })
-
-    .then(() => {
-      res.status(201).send({ message: "Commentaire créé avec succes" });
-    })
-
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message ||
-          "Une erreur s'est produit lors de la création du commentaire",
-      });
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
 
 /**

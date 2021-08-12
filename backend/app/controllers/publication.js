@@ -4,7 +4,6 @@
 const db = require("../models");
 //Protect
 const fs = require("fs");
-const userDecodedTokenId = require("../middleware/userDecodedTokenId.js");
 const validator = require("validator");
 const schemaPostCreate = require("../schema/schemaPostCreate.js");
 const schemaPostModify = require("../schema/schemaPostModify.js");
