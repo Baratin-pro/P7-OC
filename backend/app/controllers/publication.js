@@ -7,6 +7,7 @@ const fs = require("fs");
 const userDecodedTokenId = require("../middleware/userDecodedTokenId.js");
 const validator = require("validator");
 const schemaPostCreate = require("../schema/schemaPostCreate.js");
+const schemaPostModify = require("../schema/schemaPostModify.js");
 
 exports.createPublication = async (req, res) => {
   try {
@@ -104,155 +105,119 @@ exports.getOnePublication = async (req, res) => {
   }
 };
 
-/**
- * ********* Function : Get All Publication *********
- *
- *
- *  -- Description : Permet l'affichage de toute les publications
- */
-exports.getAllPublication = (req, res) => {
-  let publicationsDate = req.query.publicationsDate;
-
-  db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-
-    .then((user) => {
-      if (!user) {
-        res.status(401).send({
-          message: err.message || "Utilisateur non trouvé ",
-        });
-      }
-      return db.publication.findAll({
-        where: publicationsDate,
-        order: [["publicationsDate", "DESC"]],
-        include: [
-          {
-            model: db.comment,
-            as: "comment",
-            attributes: { exclude: ["usersId"] },
-            include: {
+exports.getAllPublication = async (req, res) => {
+  try {
+    const publicationDate = req.query.publicationDate;
+    const userId = Number(req.user.userId);
+    const user = await db.user.findOne({ where: { id: userId } });
+    if (!user) {
+      res
+        .status(401)
+        .send({ message: err.message || "Utilisateur non trouvé " });
+    } else {
+      db.publication
+        .findAll({
+          where: publicationDate,
+          order: [["publicationDate", "DESC"]],
+          include: [
+            {
+              model: db.comment,
+              as: "comment",
+              attributes: { exclude: ["userId"] },
+              include: {
+                model: db.user,
+                as: "user",
+                attributes: ["lastname", "firstname", "image"],
+              },
+            },
+            {
               model: db.user,
               as: "user",
-              attributes: ["names", "firstnames", "image"],
+              attributes: ["lastname", "firstname", "image"],
             },
-          },
-          {
-            model: db.user,
-            as: "user",
-            attributes: ["names", "firstnames", "image"],
-          },
-        ],
-      });
-    })
+          ],
+        })
 
-    .then((publication) => {
-      res.status(200).send(publication);
-    })
+        .then((publication) => {
+          res.status(200).send(publication);
+        })
 
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message,
-      });
+        .catch((err) => {
+          res.status(500).send({
+            message: err.message,
+          });
+        });
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
 
-/**
- * ********* Function : Update Publication *********
- *
- *  -- Description : Permet la modification de la publication
- *
- * @params : new FormData();
- * @params : data.append("title", "Voyage de Gulivert");
- * @params : data.append("description", "Luluputin");
- * @params : data.append("image", fileInput.files[0], "/path/to/file");
- *
- *  -- Resultat exemple :
- *
- * {
- *  "title" : "Voyage de Gulivert",
- *  "description" : "Luluputin",
- *  "image" : " http://localhost:3000/images/44908592981609749963981.jpg ",
- *  ...
- * }
- *
- */
-exports.updatePublication = (req, res) => {
-  if (req.body.titles === null || req.body.descriptions === null) {
-    return res
-      .status(400)
-      .send({ message: err.message || " Paramètres manquants" });
-  }
-  let image;
-  if (req.file) {
-    image = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
-  }
-
-  const publicationReq = {
-    idPublication: req.params.id,
-    title: String(validator.escape(req.body.titles)),
-    description: String(validator.escape(req.body.descriptions)),
-    imagesUrl: image,
-  };
-
-  db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-
-    .then((user) => {
-      if (!user) {
-        res.status(401).send({
-          message: err.message || "Utilisateur non trouvé ",
-        });
-      }
-      return db.publication.findOne({
-        where: { idPublications: publicationReq.idPublication },
-      });
-    })
-
-    .then((publication) => {
-      if (!publication) {
-        return res.status(404).send({
-          message:
-            "Une erreur s'est produite lors de la récupération de User avec l'id :" +
-            publicationReq.idPublication,
-        });
+exports.updatePublication = async (req, res) => {
+  try {
+    const userId = Number(req.user.userId);
+    const user = await db.user.findOne({ where: { id: userId } });
+    if (!user) {
+      res
+        .status(401)
+        .send({ message: err.message || "Utilisateur non trouvé " });
+    } else {
+      const publication = {
+        id: Number(req.params.id),
+        title: String(validator.escape(req.body.title)),
+        description: String(validator.escape(req.body.description)),
+      };
+      const isValid = await schemaPostModify.validateAsync(publication);
+      if (!isValid) {
+        return res.status(400).send({ message: "Erreur des données envoyées" });
       } else {
-        if (publicationReq.imagesUrl == null) {
-          return publication.update({
-            titles: publicationReq.title,
-            descriptions: publicationReq.description,
-          });
-        } else {
-          const filename = publication.imagesUrl.split("/images/")[1];
-          fs.unlink(`app/images/${filename}`, (err) => {
-            if (err) {
-              return console.log(err);
-            } else {
-              console.log("image supprimée !");
-            }
-          });
-          return publication.update({
-            titles: publicationReq.title,
-            descriptions: publicationReq.description,
-            imagesUrl: publicationReq.imagesUrl,
-          });
+        if (req.file) {
+          publication.imageUrl = `${req.protocol}://${req.get("host")}/images/${
+            req.file.filename
+          }`;
         }
+        db.publication
+          .findOne({ where: { id: publication.id } })
+          .then((publicationFound) => {
+            if (!publicationFound) {
+              return res.status(404).send({
+                message:
+                  "Une erreur s'est produite lors de la récupération de User avec l'id :" +
+                  publication.id,
+              });
+            } else {
+              if (publication.imageUrl) {
+                const filename = publicationFound.imageUrl.split("/images/")[1];
+                fs.unlink(`app/images/${filename}`, (err) => {
+                  if (err) {
+                    return console.log(err);
+                  } else {
+                    console.log("image supprimée !");
+                  }
+                });
+              }
+              return publicationFound.update({ ...publication });
+            }
+          })
+          .then(() => {
+            res.status(201).send({
+              message: "La publication a été modifié avec succès",
+            });
+          })
+          .catch((err) => {
+            res.status(404).send({
+              message: err.message || "Publication non trouvé",
+            });
+          });
       }
-    })
-
-    .then(() => {
-      res.status(201).send({
-        message:
-          "Publication : " +
-          publicationReq.idPublication +
-          " a été modifié avec succès",
-      });
-    })
-
-    .catch((err) => {
-      res.status(404).send({
-        message: err.message || "Publication non trouvé",
-      });
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
 /**
  * ********* Function : Delete Publication *********
