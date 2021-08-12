@@ -104,72 +104,51 @@ exports.getComment = async (req, res) => {
   }
 };
 
-/**
- * ********* Function : Get all Comments Publication *********
- *
- * -- Description : Permet la récupération des commentaires de la publication cible
- *
- * @params : req.params.id
- *
- * -- Resultat exemple :
- *
- * {
- *       "idComments": 238,
- *       "comments": "Ceci est un commentaire",
- *       "publicationsId": 76,
- *       "usersId": 180,
- *       "user": {
- *           "names": "Versaille",
- *           "firstnames": "Louis",
- *           "image": "http://localhost:3000/images/44908592981609749963981.jpg"
- *       }
- *   }
- */
-
-exports.getAllCommentsPublication = (req, res) => {
-  const idPublication = req.params.id;
-
-  db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-
-    .then((user) => {
-      if (!user) {
-        res.status(401).send({
-          message: err.message || "Utilisateur non trouvé ",
-        });
-      } else {
-        return db.comment.findAll({
-          where: { publicationsId: idPublication },
+exports.getAllCommentsPublication = async (req, res) => {
+  try {
+    const userId = Number(req.user.userId);
+    const idPublication = Number(req.params.id);
+    const user = await db.user.findOne({ where: { id: userId } });
+    if (!user) {
+      res.status(401).send({
+        message: err.message || "Utilisateur non trouvé ",
+      });
+    } else {
+      db.comment
+        .findAll({
+          where: { publicationId: idPublication },
           include: [
             {
               model: db.user,
               as: "user",
-              attributes: ["names", "firstnames", "image"],
+              attributes: ["lastname", "firstname", "image"],
             },
           ],
+        })
+        .then((comments) => {
+          if (comments.length <= 0) {
+            return res.status(404).send({
+              message:
+                "Une erreur s'est produite lors de la récupération des commentaires de la publication avec l'id :" +
+                idPublication,
+            });
+          } else {
+            return res.status(200).send(comments);
+          }
+        })
+        .catch((err) => {
+          res.status(500).send({
+            message:
+              err.message ||
+              "Une erreur s'est produit lors de la récupération des commentaires de la publications",
+          });
         });
-      }
-    })
-
-    .then((comments) => {
-      if (!comments) {
-        return res.status(404).send({
-          message:
-            "Une erreur s'est produite lors de la récupération de la publication avec l'id :" +
-            idPublication,
-        });
-      } else {
-        return res.status(200).send(comments);
-      }
-    })
-
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message ||
-          "Une erreur s'est produit lors de la création du commentaire",
-      });
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
 
 /**
