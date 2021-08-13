@@ -12,7 +12,7 @@ exports.createComment = async (req, res) => {
     let publication = null;
     if (!user) {
       res.status(401).send({
-        message: err.message || "Utilisateur non trouvé ",
+        message: "Utilisateur non trouvé ",
       });
     } else {
       const comment = {
@@ -68,7 +68,7 @@ exports.getComment = async (req, res) => {
     const user = await db.user.findOne({ where: { id: userId } });
     if (!user) {
       res.status(401).send({
-        message: err.message || "Utilisateur non trouvé ",
+        message: "Utilisateur non trouvé ",
       });
     } else {
       db.comment
@@ -112,7 +112,7 @@ exports.getAllCommentsPublication = async (req, res) => {
     const user = await db.user.findOne({ where: { id: userId } });
     if (!user) {
       res.status(401).send({
-        message: err.message || "Utilisateur non trouvé ",
+        message: "Utilisateur non trouvé ",
       });
     } else {
       db.comment
@@ -166,7 +166,7 @@ exports.updateComment = async (req, res) => {
       const user = await db.user.findOne({ where: { id: userId } });
       if (!user) {
         res.status(401).send({
-          message: err.message || "Utilisateur non trouvé ",
+          message: "Utilisateur non trouvé ",
         });
       } else {
         const commentFound = await db.comment.findOne({
@@ -205,68 +205,47 @@ exports.updateComment = async (req, res) => {
     });
   }
 };
-/**
- * ********* Function : Delete Comment *********
- *
- * -- Description : Permet la suppression d'un commentaire
- *
- * @params : req.params.id
- *
- * -- Resultat exemple :
- *
- *  Commentaire supprimé
- */
-exports.deleteComment = (req, res) => {
-  const idComment = req.params.id;
-  let user;
-  let comment;
-  let publication;
 
-  db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-
-    .then((userFind) => {
-      user = userFind;
-      if (!user) {
-        res.status(401).send({
-          message: err.message || "Utilisateur non trouvé ",
-        });
-      }
-
-      return db.comment.findOne({
-        where: { idComments: idComment },
+exports.deleteComment = async (req, res) => {
+  try {
+    const userId = Number(req.user.userId);
+    const idComment = Number(req.params.id);
+    const user = await db.user.findOne({ where: { id: userId } });
+    const comment = await db.comment.findOne({ where: { id: idComment } });
+    if (!user) {
+      res.status(401).send({
+        message: "Utilisateur non trouvé ",
       });
-    })
-
-    .then((commentFind) => {
-      comment = commentFind;
-      if (comment.usersId === user.idUsers || user.role == 1) {
-        comment.destroy({ where: { idComments: idComment } });
-        return db.publication.findOne({
-          where: { idPublications: comment.publicationsId },
+    } else if (!comment) {
+      res.status(400).send({
+        message: "Commentaire non trouvé ",
+      });
+    } else {
+      if (comment.userId === user.id || user.role === 1) {
+        comment.destroy({ where: { id: idComment } });
+        const publication = await db.publication.findOne({
+          where: { id: comment.publicationId },
         });
+        db.comment
+          .findAndCountAll({ where: { publicationId: publication.id } })
+          .then((countCommment) => {
+            return publication.update({ commentCount: countCommment.count });
+          })
+          .then(() => {
+            res.status(200).send({ message: "Commentaire supprimé !" });
+          })
+          .catch((err) => {
+            res.status(500).send({
+              message: err.message,
+            });
+          });
       } else {
-        throw res.status(403).send({ message: "Condition non respectée " });
+        return res.status(403).send({ message: "Condition non respectée " });
       }
-    })
-    .then((publicationFind) => {
-      publication = publicationFind;
-      return db.comment.findAndCountAll({
-        where: { publicationsId: publication.idPublications },
-      });
-    })
-
-    .then((countCommment) => {
-      return publication.update({ commentCount: countCommment.count });
-    })
-
-    .then(() => {
-      res.status(200).send({ message: "Commentaire supprimé !" });
-    })
-
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message,
-      });
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
