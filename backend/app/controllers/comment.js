@@ -3,6 +3,7 @@
 const db = require("../models");
 const validator = require("validator");
 const schemaCommentCreate = require("../schema/schemaCommentCreate.js");
+const schemaCommentModify = require("../schema/schemaCommentModify.js");
 
 exports.createComment = async (req, res) => {
   try {
@@ -151,76 +152,58 @@ exports.getAllCommentsPublication = async (req, res) => {
   }
 };
 
-/**
- * ********* Function : Update Comment *********
- *
- * -- Description : Permet la modification d'un commentaire
- *
- * @params : req.params.id
- * @params : req.body.comments
- * @params : JSON.stringify({"comments":"Ceci est un commentaire "});
- *
- * -- Resultat exemple :
- *
- * "comments" :"Ceci est un commentaire";
- */
-
-exports.updateComment = (req, res) => {
-  const idComment = req.params.id;
-  const commentReq = String(validator.escape(req.body.comments));
-
-  if (!req.body.comments) {
-    return res.status(400).send({ message: "Paramètre absent" });
-  }
-
-  db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-
-    .then((user) => {
+exports.updateComment = async (req, res) => {
+  try {
+    const userId = Number(req.user.userId);
+    const comment = {
+      id: Number(req.params.id),
+      content: String(validator.escape(req.body.comment)),
+    };
+    const isValid = await schemaCommentModify.validateAsync(comment);
+    if (!isValid) {
+      return res.status(400).send({ message: "Erreur des données envoyées" });
+    } else {
+      const user = await db.user.findOne({ where: { id: userId } });
       if (!user) {
         res.status(401).send({
           message: err.message || "Utilisateur non trouvé ",
         });
-      }
-      return db.comment.findOne({
-        where: {
-          usersId: userDecodedTokenId(req),
-          idComments: idComment,
-        },
-      });
-    })
-
-    .then((comment) => {
-      if (!comment) {
-        return res.status(404).send({
-          message:
-            "Une erreur s'est produite lors de la récupération de la publication avec l'id :" +
-            idComment,
-        });
       } else {
-        db.comment.update(
-          {
-            comments: commentReq,
+        const commentFound = await db.comment.findOne({
+          where: {
+            userId: userId,
+            id: comment.id,
           },
-          {
-            where: {
-              usersId: userDecodedTokenId(req),
-              idComments: idComment,
-            },
-          }
-        );
+        });
+        if (!commentFound) {
+          return res.status(404).send({
+            message:
+              "Une erreur s'est produite lors de la récupération du commentaire avec l'id :" +
+              comment.id,
+          });
+        } else {
+          commentFound
+            .update({
+              comment: comment.content,
+            })
+            .then(() => {
+              res
+                .status(201)
+                .send({ message: "Commentaire modifié avec succès" });
+            })
+            .catch((err) => {
+              res.status(500).send({
+                message: err.message,
+              });
+            });
+        }
       }
-    })
-
-    .then(() => {
-      res.status(201).send({ message: "Commentaire modifié avec succès" });
-    })
-
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message,
-      });
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
 /**
  * ********* Function : Delete Comment *********
