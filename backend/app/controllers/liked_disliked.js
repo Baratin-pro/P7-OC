@@ -2,233 +2,173 @@
 
 //Way to model
 const db = require("../models");
-const Op = db.Sequelize.Op;
-//Protect
-const userDecodedTokenId = require("../middleware/userDecodedTokenId.js");
-const { sequelize } = require("../models");
-const { QueryTypes } = require("sequelize");
 let user;
 let publication;
 let countDisliked;
 let countLiked;
 
-/**
- * ********* Function : Create Liked *********
- *
- * -- Description : Permet la creation d'un like
- *
- * @params : req.body.id
- * @params : JSON.stringify({"id":"54"});
- *
- * -- Resultat exemple :
- *
- * Like ajouté ou like supprimé
- */
+exports.liked = async (req, res) => {
+  try {
+    const userId = Number(req.user.userId);
+    const id = Number(req.body.id);
+    const user = await db.user.findOne({ where: { id: userId } });
+    const publication = await db.publication.findOne({ where: { id: id } });
 
-exports.liked = (req, res) => {
-  const id = req.body.id;
-
-  db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-
-    .then((userFind) => {
-      user = userFind;
-      if (!user) {
-        res
-          .status(401)
-          .send({ message: err.message || "Utilisateur non trouvé " });
-      } else {
-        return db.publication.findOne({
-          where: { idPublications: id },
-        });
-      }
-    })
-
-    .then((publicationFind) => {
-      publication = publicationFind;
-      if (!publication) {
-        res.status(404).send({
-          message: "Publication : " + id + " non trouvé ",
-        });
-      } else {
-        return db.user_liked.findOne({
+    if (!user) {
+      res.status(401).send({ message: "Utilisateur non trouvé " });
+    } else if (!publication) {
+      res.status(401).send({ message: "Publication non trouvée " });
+    } else {
+      db.user_liked
+        .findOne({
           where: {
-            usersId: user.idUsers,
-            publicationsId: publication.idPublications,
+            userId: user.id,
+            publicationId: publication.id,
           },
-        });
-      }
-    })
-
-    .then((userCheckPresence) => {
-      if (userCheckPresence) {
-        userCheckPresence.destroy();
-        return db.user_liked
-          .findAndCountAll({
-            where: { publicationsId: publication.idPublications },
-          })
-
-          .then((user_likedFindAndCountAll) => {
-            return publication.update({
-              likes: user_likedFindAndCountAll.count,
+        })
+        .then((userCheckPresence) => {
+          if (userCheckPresence) {
+            userCheckPresence.destroy();
+            return db.user_liked
+              .findAndCountAll({
+                where: { publicationId: publication.id },
+              })
+              .then((user_likedFindAndCountAll) => {
+                return publication.update({
+                  like: user_likedFindAndCountAll.count,
+                });
+              })
+              .then(() => {
+                res.status(200).send({ message: "Liked supprimé " });
+              });
+          } else {
+            return db.user_liked.create({
+              userId: user.id,
+              publicationId: publication.id,
             });
-          })
-
-          .then(() => {
-            res.status(200).send({ message: "Liked supprimé " });
+          }
+        })
+        .then(() => {
+          return db.user_disliked.findOne({
+            where: {
+              userId: user.id,
+              publicationId: publication.id,
+            },
           });
-      } else {
-        return db.user_liked.create({
-          usersId: user.idUsers,
-          publicationsId: publication.idPublications,
+        })
+        .then((disliked) => {
+          if (disliked) {
+            disliked.destroy();
+          }
+          return db.user_disliked.findAndCountAll({
+            where: { publicationId: publication.id },
+          });
+        })
+
+        .then((user_dislikedFindAndCountAll) => {
+          countDisliked = user_dislikedFindAndCountAll;
+          return db.user_liked.findAndCountAll({
+            where: { publicationId: publication.id },
+          });
+        })
+
+        .then((user_likedFindAndCountAll) => {
+          countLiked = user_likedFindAndCountAll;
+          return publication.update({
+            dislike: countDisliked.count,
+            like: countLiked.count,
+          });
+        })
+        .then(() => {
+          res.status(201).send({ message: "Liked rajouté" });
         });
-      }
-    })
-
-    .then(() => {
-      return db.user_disliked.findOne({
-        where: {
-          usersId: user.idUsers,
-          publicationsId: publication.idPublications,
-        },
-      });
-    })
-
-    .then((disliked) => {
-      if (disliked) {
-        disliked.destroy();
-      }
-      return db.user_disliked.findAndCountAll({
-        where: { publicationsId: publication.idPublications },
-      });
-    })
-
-    .then((user_dislikedFindAndCountAll) => {
-      countDisliked = user_dislikedFindAndCountAll;
-      return db.user_liked.findAndCountAll({
-        where: { publicationsId: publication.idPublications },
-      });
-    })
-
-    .then((user_likedFindAndCountAll) => {
-      countLiked = user_likedFindAndCountAll;
-      return publication.update({
-        dislikes: countDisliked.count,
-        likes: countLiked.count,
-      });
-    })
-
-    .then(() => {
-      res.status(201).send({ message: "Liked rajouté" });
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
-/**
- * ********* Function : Create DisLiked *********
- *
- * -- Description : Permet la creation d'un like
- *
- * @params : req.body.id
- * @params : JSON.stringify({"id":"54"});
- *
- * -- Resultat exemple :
- *
- * Dislike ajouté ou Dislike supprimé
- */
 
-exports.disliked = (req, res) => {
-  const id = req.body.id;
+exports.disliked = async (req, res) => {
+  try {
+    const userId = Number(req.user.userId);
+    const id = Number(req.body.id);
+    const user = await db.user.findOne({ where: { id: userId } });
+    const publication = await db.publication.findOne({ where: { id: id } });
 
-  db.user
-    .findOne({ where: { idUsers: userDecodedTokenId(req) } })
-
-    .then((userFind) => {
-      user = userFind;
-      if (!user) {
-        res
-          .status(401)
-          .send({ message: err.message || "Utilisateur non trouvé " });
-      } else {
-        return db.publication.findOne({
-          where: { idPublications: id },
-        });
-      }
-    })
-
-    .then((publicationFind) => {
-      publication = publicationFind;
-      if (!publication) {
-        res.status(404).send({
-          message: "Publication : " + id + " non trouvé ",
-        });
-      } else {
-        return db.user_disliked.findOne({
+    if (!user) {
+      res.status(401).send({ message: "Utilisateur non trouvé " });
+    } else if (!publication) {
+      res.status(401).send({ message: "Publication non trouvée " });
+    } else {
+      db.user_disliked
+        .findOne({
           where: {
-            usersId: user.idUsers,
-            publicationsId: publication.idPublications,
+            userId: user.id,
+            publicationId: publication.id,
           },
-        });
-      }
-    })
-
-    .then((userCheckPresence) => {
-      if (userCheckPresence) {
-        userCheckPresence.destroy();
-        return db.user_disliked
-          .findAndCountAll({
-            where: { publicationsId: publication.idPublications },
-          })
-
-          .then((user_dislikedFindAndCountAll) => {
-            return publication.update({
-              dislikes: user_dislikedFindAndCountAll.count,
+        })
+        .then((userCheckPresence) => {
+          if (userCheckPresence) {
+            userCheckPresence.destroy();
+            return db.user_disliked
+              .findAndCountAll({
+                where: { publicationId: publication.id },
+              })
+              .then((user_dislikedFindAndCountAll) => {
+                return publication.update({
+                  dislike: user_dislikedFindAndCountAll.count,
+                });
+              })
+              .then(() => {
+                res.status(200).send({ message: "Disliked supprimé " });
+              });
+          } else {
+            return db.user_disliked.create({
+              userId: user.id,
+              publicationId: publication.id,
             });
-          })
-
-          .then(() => {
-            res.status(200).send({ message: "Disliked supprimé " });
+          }
+        })
+        .then(() => {
+          return db.user_liked.findOne({
+            where: {
+              userId: user.id,
+              publicationId: publication.id,
+            },
           });
-      } else {
-        return db.user_disliked.create({
-          usersId: user.idUsers,
-          publicationsId: publication.idPublications,
+        })
+        .then((liked) => {
+          if (liked) {
+            liked.destroy();
+          }
+          return db.user_disliked.findAndCountAll({
+            where: { publicationId: publication.id },
+          });
+        })
+
+        .then((user_dislikedFindAndCountAll) => {
+          countDisliked = user_dislikedFindAndCountAll;
+          return db.user_liked.findAndCountAll({
+            where: { publicationId: publication.id },
+          });
+        })
+
+        .then((user_likedFindAndCountAll) => {
+          countLiked = user_likedFindAndCountAll;
+          return publication.update({
+            dislike: countDisliked.count,
+            like: countLiked.count,
+          });
+        })
+        .then(() => {
+          res.status(201).send({ message: "Disliked rajouté" });
         });
-      }
-    })
-
-    .then(() => {
-      return db.user_liked.findOne({
-        where: {
-          usersId: user.idUsers,
-          publicationsId: publication.idPublications,
-        },
-      });
-    })
-
-    .then((liked) => {
-      if (liked) {
-        liked.destroy();
-      }
-      return db.user_disliked.findAndCountAll({
-        where: { publicationsId: publication.idPublications },
-      });
-    })
-
-    .then((user_dislikedFindAndCountAll) => {
-      countDisliked = user_dislikedFindAndCountAll;
-      return db.user_liked.findAndCountAll({
-        where: { publicationsId: publication.idPublications },
-      });
-    })
-
-    .then((user_likedFindAndCountAll) => {
-      countLiked = user_likedFindAndCountAll;
-      return publication.update({
-        dislikes: countDisliked.count,
-        likes: countLiked.count,
-      });
-    })
-
-    .then(() => {
-      res.status(201).send({ message: "Disliked rajouté" });
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };
