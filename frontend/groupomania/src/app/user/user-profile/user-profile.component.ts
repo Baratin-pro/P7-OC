@@ -46,7 +46,6 @@ export class UserProfileComponent implements OnInit {
   deleteProfil(id: string): void {
     this.userService.deleteUser(id).subscribe(
       (response: { message: string }) => {
-        console.log(response.message);
         this.loading = false;
         this.router.navigate(['/auth/login']);
       },

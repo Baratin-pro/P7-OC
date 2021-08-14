@@ -127,15 +127,7 @@ exports.getAllCommentsPublication = async (req, res) => {
           ],
         })
         .then((comments) => {
-          if (comments.length <= 0) {
-            return res.status(404).send({
-              message:
-                "Une erreur s'est produite lors de la récupération des commentaires de la publication avec l'id :" +
-                idPublication,
-            });
-          } else {
-            return res.status(200).send(comments);
-          }
+          return res.status(200).send(comments);
         })
         .catch((err) => {
           res.status(500).send({

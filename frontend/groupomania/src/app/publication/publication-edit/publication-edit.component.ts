@@ -54,19 +54,19 @@ export class PublicationEditComponent implements OnInit {
 
   onInitPublicationForm(): any {
     this.publicationForm = this.formBuilder.group({
-      titles: new FormControl(null, [Validators.required]),
+      title: new FormControl(null, [Validators.required]),
       image: [null, [Validators.required]],
-      descriptions: new FormControl(null, [Validators.required])
+      description: new FormControl(null, [Validators.required])
     });
   }
 
   initModifyForm(publication: Publication): void {
     this.publicationForm = this.formBuilder.group({
-      titles: new FormControl(this.publication.titles, [Validators.required]),
-      image: [this.publication.imagesUrl, [Validators.required]],
-      descriptions: new FormControl(this.publication.descriptions, [Validators.required])
+      title: new FormControl(this.publication.title, [Validators.required]),
+      image: [this.publication.imageUrl, [Validators.required]],
+      description: new FormControl(this.publication.description, [Validators.required])
     });
-    this.imagePreview = this.publication.imagesUrl;
+    this.imagePreview = this.publication.imageUrl;
   }
 
   // Fonction liée au bouton de confirmation d'envoies des données saisis par l'utilisateur
@@ -74,21 +74,21 @@ export class PublicationEditComponent implements OnInit {
   onSumitForm(): void {
     this.loading = true;
     const newValue = {
-      titles: this.publicationForm.get('titles').value,
-      descriptions: this.publicationForm.get('descriptions').value,
+      title: this.publicationForm.get('title').value,
+      description: this.publicationForm.get('description').value,
     };
 
     // Préparation de la requête en transformant les données saisis de l'utilisateur 
 
     const newPublication = new Publication(
       null,
-      newValue.titles,
-      newValue.descriptions,
+      newValue.title,
+      newValue.description,
       null
     );
     this.formData.append('image', this.publicationForm.get('image').value);
-    this.formData.append('titles', newPublication.titles);
-    this.formData.append('descriptions', newPublication.descriptions);
+    this.formData.append('title', newPublication.title);
+    this.formData.append('description', newPublication.description);
 
     // Envoie de la requête au serveur via la route API post publication
 
@@ -103,7 +103,7 @@ export class PublicationEditComponent implements OnInit {
       // Envoie de la requête au serveur via la route API modify publication
 
     } else if (this.mode === "modify") {
-      this.publicationService.modifyPublication(this.publication.idPublications, this.formData).subscribe(
+      this.publicationService.modifyPublication(this.publication.id, this.formData).subscribe(
         () => {
           this.loading = false;
           this.router.navigate(['/accueil']);

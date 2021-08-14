@@ -1,8 +1,8 @@
 export class Publication {
     constructor(
-        public idPublications: string,
-        public titles: string,
-        public descriptions: string,
-        public imagesUrl: string
+        public id: string,
+        public title: string,
+        public description: string,
+        public imageUrl: string
     ) { }
 }

@@ -33,7 +33,7 @@ export class PublicationCommentModifyComponent implements OnInit {
 
   onInitCommentForm(): any {
     this.commentForm = this.formBuilder.group({
-      comments: new FormControl(this.comment.comments, [Validators.required]),
+      comment: new FormControl(this.comment.comment, [Validators.required]),
     })
   }
 
@@ -56,19 +56,19 @@ export class PublicationCommentModifyComponent implements OnInit {
 
     // Récupération des valeurs 
 
-    const newValue = this.commentForm.get('comments').value;
+    const newValue = this.commentForm.get('comment').value;
 
     // Préparation de la requête en transformant les données saisis de l'utilisateur     
 
     const newDescriptionComment = new Comment(
       null,
       newValue,
-      null
+
     )
 
     // Envoie de la requête au serveur via la route API modify-publication
 
-    this.commentService.modifyComment(this.comment.idComments, newDescriptionComment).subscribe(
+    this.commentService.modifyComment(this.comment.id, newDescriptionComment).subscribe(
       (response: { message: string }) => {
         console.log(response.message);
       },

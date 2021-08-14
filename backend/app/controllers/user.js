@@ -2,7 +2,6 @@
 
 //Way to model
 const db = require("../models");
-const Op = db.Sequelize.Op;
 //Protect
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -246,92 +245,114 @@ exports.updateUserImage = (req, res) => {
     });
 };
 
-exports.deleteUser = (req, res) => {
-  const userId = Number(req.user.userId);
-  const id = Number(req.params.id);
-  let publication;
-  let user;
-  db.user
-    .findOne({ where: { id: userId } })
+exports.deleteUser = async (req, res) => {
+  try {
+    const userId = Number(req.user.userId);
+    const id = Number(req.params.id);
 
-    .then((userAuth) => {
+    const userAuth = await db.user.findOne({ where: { id: userId } });
+    const user = await db.user.findOne({ where: { id: id } });
+    const publication = await db.publication.findAll({ where: { userId: id } });
+    const comment = await db.comment.findAll({ where: { userId: id } });
+    const userLiked = await db.user_liked.findAll({ where: { userId: id } });
+    const userDisliked = await db.user_disliked.findAll({
+      where: { userId: id },
+    });
+
+    if (!userAuth) {
+      res.status(401).send({ message: "Utilisateur non trouvé " });
+    } else {
       if (userAuth.id === id || userAuth.role === 1) {
-        return db.user.findOne({ where: { id: id } });
+        !comment
+          ? console.log("aucun commentaire trouvée")
+          : db.comment.destroy();
+        !userLiked ? console.log("aucun like trouvé") : db.user_liked.destroy();
+        !userDisliked
+          ? console.log("aucun dislike trouvé")
+          : db.user_disliked.destroy();
+        if (!publication) {
+          if (user.image != "http://localhost:3000/images/avatarDefault.jpg") {
+            const filename = user.image.split("/images/")[1];
+            fs.unlink(`app/images/${filename}`, (err) => {
+              if (err) {
+                return console.log(err);
+              } else {
+                console.log("image supprimée !");
+              }
+            });
+          }
+          user.destroy();
+          return res.status(200).send({ message: "User supprimé !" });
+        } else if (publication) {
+          for (let i = 0; i < publication.length; i++) {
+            console.log(publication[i].imageUrl);
+            console.log(publication[i]);
+            if (publication[i].imageUrl) {
+              const filename = publication[i].imageUrl.split("/images/")[1];
+              fs.unlink(`app/images/${filename}`, (err) => {
+                if (err) {
+                  return console.log(err);
+                } else {
+                  console.log("image supprimée !");
+                }
+              });
+            }
+            const commentPublication = await db.comment.findAll({
+              where: { publicationId: publication[i].id },
+            });
+            const userLikedPublication = await db.user_liked.findAll({
+              where: { publicationId: publication[i].id },
+            });
+            const userDislikedPublication = await db.user_disliked.findAll({
+              where: { publicationId: publication[i].id },
+            });
+            !commentPublication
+              ? console.log("aucun commentaire trouvée")
+              : db.comment.destroy();
+            !userLikedPublication
+              ? console.log("aucun like trouvé")
+              : db.user_liked.destroy();
+            !userDislikedPublication
+              ? console.log("aucun dislike trouvé")
+              : db.user_disliked.destroy();
+          }
+          db.publication
+            .destroy({ where: { userId: id } })
+            .then(() => {
+              if (
+                user.image != "http://localhost:3000/images/avatarDefault.jpg"
+              ) {
+                const filename = user.image.split("/images/")[1];
+                fs.unlink(`app/images/${filename}`, (err) => {
+                  if (err) {
+                    return console.log(err);
+                  } else {
+                    console.log("image supprimée !");
+                  }
+                });
+              }
+              return user.destroy();
+            })
+            .then((userDestroy) => {
+              if (!userDestroy) {
+                return res.status(404).send({ message: "User id:" + id });
+              } else {
+                return res.status(200).send({ message: "User supprimé !" });
+              }
+            })
+            .catch((err) => {
+              res.status(500).send({
+                message: err.message,
+              });
+            });
+        }
       } else {
         return res.status(403).send({ message: "Condition non respectée " });
       }
-    })
-    .then((userFind) => {
-      user = userFind;
-      db.comment.destroy({ where: { id: id } });
-      db.user_liked.destroy({ where: { id: id } });
-      db.user_disliked.destroy({ where: { id: id } });
-      return db.publication.findAll({ where: { id: id } });
-    })
-    .then((publicationFind) => {
-      publication = publicationFind;
-      if (!publication) {
-        if (user.id != id) {
-          res.status(404).send({ message: "User non trouvé !" });
-        }
-        if (user.image != "http://localhost:3000/images/avatarDefault.jpg") {
-          const filename = user.image.split("/images/")[1];
-          fs.unlink(`app/images/${filename}`, (err) => {
-            if (err) {
-              return console.log(err);
-            } else {
-              console.log("image supprimée !");
-            }
-          });
-        }
-        db.user.destroy({ where: { id: id } });
-        return res.status(200).send({ message: "User supprimé !" });
-      }
-    })
-    .then(() => {
-      for (let i = 0; i < publication.length; i++) {
-        if (publication[i].imagesUrl) {
-          console.log(publication[i].imagesUrl);
-          const filename = publication[i].imagesUrl.split("/images/")[1];
-          fs.unlink(`app/images/${filename}`, (err) => {
-            if (err) {
-              return console.log(err);
-            } else {
-              console.log("image supprimée !");
-            }
-          });
-        }
-        db.comment.destroy({ where: { publicationsId: publication[i].id } });
-        db.user_liked.destroy({ where: { publicationsId: publication[i].id } });
-        db.user_disliked.destroy({
-          where: { publicationsId: publication[i].id },
-        });
-      }
-      return db.publication.destroy({ where: { id: id } });
-    })
-    .then(() => {
-      if (user.image != "http://localhost:3000/images/avatarDefault.jpg") {
-        const filename = user.image.split("/images/")[1];
-        fs.unlink(`app/images/${filename}`, (err) => {
-          if (err) {
-            return console.log(err);
-          } else {
-            console.log("image supprimée !");
-          }
-        });
-      }
-      return db.user.destroy({ where: { id: id } });
-    })
-    .then((userDestroy) => {
-      if (!userDestroy) {
-        return res.status(404).send({ message: "User id:" + id });
-      } else {
-        return res.status(200).send({ message: "User supprimé !" });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message,
-      });
+    }
+  } catch (err) {
+    return res.status(500).send({
+      message: err.message,
     });
+  }
 };

@@ -1,19 +1,19 @@
 export class PublicationGet {
     constructor(
-        public idPublications: string,
-        public imagesUrl: string,
+        public id: string,
+        public imageUrl: string,
         public commentCount: string,
         public comment: [],
-        public descriptions: string,
-        public dislikes: string,
-        public likes: string,
-        public publicationsDate: string,
-        public titles: string,
-        public usersId: string,
+        public description: string,
+        public dislike: string,
+        public like: string,
+        public publicationDate: string,
+        public title: string,
+        public userId: string,
         public user: {
-            firstnames: string,
+            firstname: string,
             image: string,
-            names: string
+            lastname: string
         }
     ) { }
 }

@@ -100,42 +100,42 @@ export class PublicationDetailComponent implements OnInit {
 
   onInitComment(): any {
     this.commentForm = this.formBuilder.group({
-      comments: new FormControl(null, [Validators.required])
+      comment: new FormControl(null, [Validators.required])
     });
   }
   // Fonction liée au bouton de confirmation d'envoies des données saisis par l'utilisateur
 
-  onSumitForm(publicationsId: number): void {
+  onSumitForm(id: number): void {
 
     // Récupération des valeurs 
 
-    const newCommentsValue = this.commentForm.get('comments').value;
+    const newCommentsValue = this.commentForm.get('comment').value;
 
     // Préparation de la requête en transformant les données saisis de l'utilisateur 
 
-    const newComments = new Comment(
-      null,
+    const newComment = new Comment(
+      id,
       newCommentsValue,
-      publicationsId,
+
     )
 
     // Envoie de la requête au serveur via la route API post comment
 
-    this.commentService.createComment(newComments).subscribe(
+    this.commentService.createComment(newComment).subscribe(
       () => {
 
         // Retorune les nouvelles données à la navigation
 
-        this.commentService.getAllComments(String(publicationsId)).subscribe(
+        this.commentService.getAllComments(String(id)).subscribe(
           (commentAll) => {
             this.comments = commentAll;
             this.commentForm = this.formBuilder.group({
-              comments: new FormControl(null)
+              comment: new FormControl(null)
             });
 
             // Actualise le nombre de commentaires publiés sur la publication cible
 
-            this.publicationsService.getOnePublication(String(publicationsId)).subscribe(
+            this.publicationsService.getOnePublication(String(id)).subscribe(
               (commentAll) => {
                 this.publication = commentAll;
               }

@@ -13,9 +13,7 @@ exports.createPublication = async (req, res) => {
     const userId = Number(req.user.userId);
     const userFound = await db.user.findOne({ where: { id: userId } });
     if (!userFound) {
-      res.status(401).send({
-        message: err.message || "Utilisateur non trouvé ",
-      });
+      res.status(401).send({ message: "Utilisateur non trouvé " });
     } else {
       const publication = {
         title: String(req.body.title),

@@ -1,20 +1,22 @@
 <mat-card class="profile" *ngIf="loading">
-  <img mat-card-image class="profile_img" src="{{profil.image}}" alt="{{profil.firstnames}} {{profil.names}}">
-  <h2 class="profile_title">{{profil.firstnames}} <span class="profile_names">{{profil.names}}</span></h2>
+  <img mat-card-image class="profile_img" src="{{profil.image}}" alt="{{profil.firstname}} {{profil.lastname}}">
+  <h2 class="profile_title">{{profil.firstname}} <span class="profile_names">{{profil.lastname}}</span></h2>
   <mat-card-actions class="profile_btn">
     <button (click)="modifyImgProfil()" button mat-stroked-button> Modifier l'image du profil </button>
-      <button (click)="deleteProfil(profil.idUsers)"  button mat-stroked-button> Supprimer le profil </button>
+    <button (click)="deleteProfil(profil.id)" button mat-stroked-button> Supprimer le profil </button>
   </mat-card-actions>
-  <mat-card-content  class="profile_content">
+  <mat-card-content class="profile_content">
     <div class="profile_content_container">
       <p>{{today | date:'HH:mm'}}</p>
-      <p class="gray" >Heure local</p>
+      <p class="gray">Heure local</p>
     </div>
     <div class="profile_content_container">
-    <a class="profile_link" href="mailto: {{profil.emails}}">{{profil.emails}}</a>
-    <p class="gray">E-mail</p>
+      <a class="profile_link" href="mailto: {{profil.email}}">{{profil.email}}</a>
+      <p class="gray">E-mail</p>
     </div>
   </mat-card-content>
 </mat-card>
 <!------------------------- Message d'erreur ------------------------->
-<div class="invalid" *ngIf="msgErr"><p>{{msgErr}}</p></div>
+<div class="invalid" *ngIf="msgErr">
+  <p>{{msgErr}}</p>
+</div>

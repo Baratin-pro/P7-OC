@@ -7,8 +7,8 @@
   <mat-card class="userList_card" *ngFor="let user of users">
     <mat-card-header class="userList_card_container">
       <div mat-card-avatar class="userList_card_container_img" style="background-image: url({{user.image}});"></div>
-      <mat-card-title class="userList_card_container_title">{{user.name}} {{user.firstname}} </mat-card-title>
-      <mat-card-subtitle><a class="userList_card_container_link" href="mailto:{{user.emails}}">{{user.email}}</a>
+      <mat-card-title class="userList_card_container_title">{{user.lastname}} {{user.firstname}} </mat-card-title>
+      <mat-card-subtitle><a class="userList_card_container_link" href="mailto:{{user.email}}">{{user.email}}</a>
       </mat-card-subtitle>
     </mat-card-header>
     <div>
@@ -17,7 +17,7 @@
         <mat-icon>more_vert</mat-icon>
       </button>
       <mat-menu #menu="matMenu" xPosition="before">
-        <button mat-menu-item (click)="deleteUserFocus(user.idUsers)"> Supprimer l'utilisateur </button>
+        <button mat-menu-item (click)="deleteUserFocus(user.id)"> Supprimer l'utilisateur </button>
       </mat-menu>
     </div>
   </mat-card>
